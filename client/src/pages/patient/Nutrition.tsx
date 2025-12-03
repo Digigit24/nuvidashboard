@@ -98,49 +98,61 @@ export default function NutritionPage() {
   const calorieProgress = dailyLog ? (dailyLog.total_calories / calorieGoal) * 100 : 0;
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold">Nutrition</h1>
-        <p className="text-muted-foreground">
-          Track your meals and maintain a healthy diet
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <Apple className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">Nutrition</h1>
+            <p className="text-white/90 text-lg mt-1">
+              Track your meals and maintain a healthy diet
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Daily Calorie Summary */}
-      <Card className="border-2 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Flame className="h-5 w-5 text-orange-500" />
-              Today's Calories
+      <Card className="border-2 hover:shadow-xl transition-all bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <span className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                <Flame className="h-6 w-6 text-orange-500" />
+              </div>
+              <span className="text-xl">Today's Calories</span>
             </span>
-            <span className="text-2xl font-bold">
+            <span className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
               {dailyLog?.total_calories || 0} / {calorieGoal}
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="relative h-4 w-full overflow-hidden rounded-full bg-muted">
+        <CardContent className="space-y-5">
+          <div className="relative h-6 w-full overflow-hidden rounded-full bg-muted border-2">
             <div
-              className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
+              className="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500 shadow-lg"
               style={{ width: `${Math.min(calorieProgress, 100)}%` }}
             />
           </div>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-green-600">{dailyLog?.meals.length || 0}</p>
-              <p className="text-xs text-muted-foreground">Meals</p>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-white/60 dark:bg-black/20 rounded-xl border border-green-200 dark:border-green-800 text-center">
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">{dailyLog?.meals.length || 0}</p>
+              <p className="text-sm text-muted-foreground mt-1">Meals Logged</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-emerald-600">{Math.round(calorieProgress)}%</p>
-              <p className="text-xs text-muted-foreground">of Goal</p>
+            <div className="p-4 bg-white/60 dark:bg-black/20 rounded-xl border border-emerald-200 dark:border-emerald-800 text-center">
+              <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">{Math.round(calorieProgress)}%</p>
+              <p className="text-sm text-muted-foreground mt-1">of Goal</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-amber-600">
+            <div className="p-4 bg-white/60 dark:bg-black/20 rounded-xl border border-amber-200 dark:border-amber-800 text-center">
+              <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
                 {calorieGoal - (dailyLog?.total_calories || 0)}
               </p>
-              <p className="text-xs text-muted-foreground">Remaining</p>
+              <p className="text-sm text-muted-foreground mt-1">Remaining</p>
             </div>
           </div>
         </CardContent>
@@ -150,8 +162,8 @@ export default function NutritionPage() {
       <div className="flex gap-3">
         <Dialog open={customCalorieDialogOpen} onOpenChange={setCustomCalorieDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex-1" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className="flex-1 h-12 border-2 shadow-md hover:shadow-lg transition-all" variant="outline">
+              <Plus className="h-5 w-5 mr-2" />
               Quick Entry
             </Button>
           </DialogTrigger>
@@ -189,8 +201,8 @@ export default function NutritionPage() {
           </DialogContent>
         </Dialog>
 
-        <Button className="flex-1" onClick={() => loadDailyLog()}>
-          <TrendingUp className="h-4 w-4 mr-2" />
+        <Button className="flex-1 h-12 shadow-md hover:shadow-lg transition-all" onClick={() => loadDailyLog()}>
+          <TrendingUp className="h-5 w-5 mr-2" />
           View History
         </Button>
       </div>
@@ -211,7 +223,9 @@ export default function NutritionPage() {
             <Badge
               key={condition}
               variant={filterCondition === condition ? 'default' : 'outline'}
-              className="cursor-pointer whitespace-nowrap"
+              className={`cursor-pointer whitespace-nowrap px-4 py-2 text-sm transition-all ${
+                filterCondition === condition ? 'shadow-md' : 'hover:border-primary/30'
+              }`}
               onClick={() => setFilterCondition(condition)}
             >
               {condition}
@@ -242,7 +256,7 @@ export default function NutritionPage() {
           filteredMeals.map((meal) => (
             <Card
               key={meal.id}
-              className="overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] group"
+              className="overflow-hidden cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] group border-2 hover:border-primary/30"
               onClick={() => setSelectedMeal(meal)}
             >
               <div className="relative h-48 overflow-hidden">
