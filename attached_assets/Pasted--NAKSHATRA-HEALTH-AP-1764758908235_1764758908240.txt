@@ -1,0 +1,234 @@
+═══════════════════════════════════════════════════════════════════════════════
+NAKSHATRA HEALTH APP - REACT UI BUILD - STEP 1: PATIENT DASHBOARD ROUTES & UX
+═══════════════════════════════════════════════════════════════════════════════
+
+PROJECT CONTEXT:
+- 90-day health program (PCOD, Fertility, General Wellness, Hormonal Balance)
+- Patient-centric dashboard
+- Mobile-first, responsive design
+- Dark/Light mode already enabled
+- Sidebar already responsive
+- Use shadcn UI components only
+- Mock data in place, API calls commented out
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 1: PATIENT DASHBOARD - ROUTES, NAVIGATION & CORE UI
+═══════════════════════════════════════════════════════════════════════════════
+
+MAIN OBJECTIVE:
+Create the patient dashboard navigation structure, routes, and 5 core pages with 
+mock data. Each page should be functional but without advanced features. Focus on 
+UX flow and proper routing.
+
+═══════════════════════════════════════════════════════════════════════════════
+ROUTES STRUCTURE (Patient Dashboard):
+═══════════════════════════════════════════════════════════════════════════════
+
+/dashboard
+  ├── /dashboard/home          → Dashboard Home (Main entry)
+  ├── /dashboard/today         → Today's Check-in & Quick Actions
+  ├── /dashboard/vitals        → Health Metrics & Vitals Tracking
+  ├── /dashboard/consultations → Upcoming & Past Consultations
+  ├── /dashboard/habits        → Habit Tracker (Daily habits with checkboxes)
+  ├── /dashboard/profile       → Patient Profile Settings
+  └── /auth/login              → Login Page (if not authenticated)
+
+ADMIN ROUTES (create only structure, no UI yet):
+/admin
+  ├── /admin/dashboard         → Admin Dashboard Overview
+  ├── /admin/patients          → All Patients List
+  ├── /admin/patients/{id}     → Patient Details & Customization
+  └── /admin/reports           → Reports & Analytics
+
+═══════════════════════════════════════════════════════════════════════════════
+STEP 1 FOCUS: Build these 5 pages for PATIENT only
+═══════════════════════════════════════════════════════════════════════════════
+
+1. /dashboard/home
+   - Greeting message ("Good Morning, Sarah")
+   - Program progress ring (visual circular progress: 45/90 days)
+   - 4 Quick stat cards:
+     * Days Completed: 45/90
+     * Program Progress: 45%
+     * Consultations Booked: 2/4
+     * Current Streak: 5 days
+   - "Today's Tasks" section with 3-4 items to complete
+   - Quick action buttons (Check Vitals, Log Meal, Start Yoga)
+
+2. /dashboard/today
+   - Large "Daily Check-in" button (center of page, big tap target)
+   - Quick input cards for:
+     * Weight (kg input)
+     * Energy Level (1-10 slider)
+     * Sleep Hours (number input)
+     * Notes (text)
+   - "Save Check-in" button
+   - Show last check-in date/time below
+   - Display today's completed tasks with checkboxes:
+     * ☑ Drink Water (3L)
+     * ☑ Take Yoga (20 mins)
+     * ☐ Log Meal
+     * ☑ Meditation (10 mins)
+
+3. /dashboard/vitals
+   - 5 Vital cards in grid (2 cols on mobile, 3 on desktop):
+     * Weight: 67.5 kg (Normal range: 55-70)
+     * Blood Sugar: 92 mg/dL (Normal)
+     * Hormone Level: 11.8 mIU/ml (Normal)
+     * Energy Score: 9/10 (Good)
+     * Sleep Hours: 7.5h (Good)
+   - Each card shows: value, unit, normal range, last updated date, status badge
+   - "Update Vitals" button
+   - Simple line chart showing weight trend (last 30 days)
+
+4. /dashboard/consultations
+   - "Upcoming Consultations" section:
+     * Card 1: Dr. Priya Singh, Dec 10, 2:00 PM, Scheduled
+     * Card 2: Dr. Amit Sharma, Dec 17, 3:00 PM, Scheduled
+   - Each consultation card shows:
+     * Doctor Name
+     * Date & Time
+     * Status (Scheduled/Completed)
+     * "Join Meeting" button (if Scheduled)
+     * "View Report" button (if Completed)
+   - "Past Consultations" expandable section below
+
+5. /dashboard/profile
+   - User Info Section:
+     * Full Name: Sarah Khan (editable input)
+     * Email: sarah@example.com (read-only)
+     * Phone: +91-9876543210 (editable input)
+     * Date of Birth: 15-May-1990
+   - Program Config Section:
+     * Condition: PCOD (read-only badge)
+     * Program Duration: 90 days
+     * Start Date: Dec 3, 2025
+     * Modules Enabled: Nutrition, Fitness, Health Metrics, Consultations
+   - Buttons:
+     * "Save Profile Changes"
+     * "Logout"
+
+═══════════════════════════════════════════════════════════════════════════════
+BOTTOM TAB NAVIGATION (Mobile) - Visible on all pages:
+═══════════════════════════════════════════════════════════════════════════════
+
+5 tabs at bottom (on mobile devices):
+1. Home icon    → /dashboard/home
+2. Today icon   → /dashboard/today
+3. Heart icon   → /dashboard/vitals
+4. Calendar icon → /dashboard/consultations
+5. User icon    → /dashboard/profile
+
+On desktop: Show as sidebar links instead of bottom tabs.
+
+═══════════════════════════════════════════════════════════════════════════════
+NAVIGATION SIDEBAR (Desktop) - Already built, just add routes:
+═══════════════════════════════════════════════════════════════════════════════
+
+PATIENT SECTION:
+├── Dashboard Home
+├── Today's Check-in
+├── Health Vitals
+├── Consultations
+└── Profile
+
+(No other menu items for patient yet - we'll add Nutrition, Fitness, Yoga, etc 
+in Step 2 and Step 3)
+
+═══════════════════════════════════════════════════════════════════════════════
+MOCK DATA STRUCTURE:
+═══════════════════════════════════════════════════════════════════════════════
+
+Create file: src/lib/mockData.ts
+
+This file should contain:
+
+1. PATIENT DATA:
+   {
+     id: 1,
+     fullName: "Sarah Khan",
+     email: "sarah@example.com",
+     phone: "+91-9876543210",
+     dateOfBirth: "1990-05-15",
+     gender: "Female",
+     condition: "PCOD"
+   }
+
+2. PROGRAM CONFIG:
+   {
+     patientId: 1,
+     templateName: "PCOD",
+     modules: ["Nutrition", "Fitness", "Health Metrics", "Consultations"],
+     consultationCount: 4,
+     programDuration: 90,
+     startDate: "2025-12-03",
+     remainingDays: 45,
+     progressPercentage: 50
+   }
+
+3. VITALS DATA (Latest):
+   {
+     weight: { value: 67.5, unit: "kg", normalRange: "55-70", status: "Normal", lastUpdated: "2025-12-02" },
+     bloodSugar: { value: 92, unit: "mg/dL", normalRange: "70-100", status: "Normal", lastUpdated: "2025-12-02" },
+     hormoneLevel: { value: 11.8, unit: "mIU/ml", normalRange: "5-25", status: "Normal", lastUpdated: "2025-11-28" },
+     energyScore: { value: 9, unit: "score", normalRange: "7-10", status: "Good", lastUpdated: "2025-12-02" },
+     sleepHours: { value: 7.5, unit: "hours", normalRange: "7-9", status: "Good", lastUpdated: "2025-12-02" }
+   }
+
+4. CONSULTATIONS DATA (Array):
+   [
+     {
+       id: 1,
+       doctorName: "Dr. Priya Singh",
+       doctorSpecialization: "Gynecology & PCOD",
+       scheduledDate: "2025-12-10T14:00:00Z",
+       status: "Scheduled",
+       durationMinutes: 30,
+       meetingLink: "https://meet.google.com/abc-defg"
+     },
+     {
+       id: 2,
+       doctorName: "Dr. Amit Sharma",
+       doctorSpecialization: "Wellness Coach",
+       scheduledDate: "2025-12-17T15:00:00Z",
+       status: "Scheduled",
+       durationMinutes: 30,
+       meetingLink: "https://meet.google.com/xyz-uvwx"
+     },
+     {
+       id: 3,
+       doctorName: "Dr. Priya Singh",
+       scheduledDate: "2025-12-05T10:00:00Z",
+       status: "Completed",
+       notes: "PCOD management plan discussed."
+     }
+   ]
+
+5. TODAY'S HABITS DATA (Array):
+   [
+     { id: 1, name: "Drink Water", target: "3L", completed: true },
+     { id: 2, name: "Take Yoga", target: "20 mins", completed: true },
+     { id: 3, name: "Log Meal", target: "3 meals", completed: false },
+     { id: 4, name: "Meditation", target: "10 mins", completed: true }
+   ]
+
+6. WEIGHT TREND DATA (Last 30 days):
+   [
+     { date: "2025-11-03", weight: 68.5 },
+     { date: "2025-11-06", weight: 68.2 },
+     { date: "2025-11-09", weight: 68.0 },
+     { date: "2025-11-12", weight: 67.8 },
+     { date: "2025-11-15", weight: 67.5 },
+     { date: "2025-11-18", weight: 67.3 },
+     { date: "2025-11-21", weight: 67.1 },
+     { date: "2025-11-24", weight: 66.9 },
+     { date: "2025-11-27", weight: 66.7 },
+     { date: "2025-11-30", weight: 66.5 },
+     { date: "2025-12-03", weight: 67.5 }
+   ]
+
+═══════════════════════════════════════════════════════════════════════════════
+API INTEGRATION PATTERN (For all pages):
+═══════════════════════════════════════════════════════════════════════════════
+
+In each page component, follow this pattern:

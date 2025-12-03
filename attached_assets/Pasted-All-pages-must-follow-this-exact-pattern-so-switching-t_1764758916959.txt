@@ -1,0 +1,129 @@
+All pages must follow this exact pattern so switching to real API is seamless.
+
+═══════════════════════════════════════════════════════════════════════════════
+FILE STRUCTURE FOR STEP 1:
+═══════════════════════════════════════════════════════════════════════════════
+
+src/
+├── lib/
+│   ├── mockData.ts                    ← Create with all mock data above
+│   ├── apiConfig.ts                   ← Keep as is (for future API calls)
+│
+├── pages/
+│   ├── Dashboard.tsx                  ← Main layout wrapper
+│   └── patient/
+│       ├── Home.tsx                   ← /dashboard/home
+│       ├── Today.tsx                  ← /dashboard/today
+│       ├── Vitals.tsx                 ← /dashboard/vitals
+│       ├── Consultations.tsx          ← /dashboard/consultations
+│       └── Profile.tsx                ← /dashboard/profile
+│
+├── components/
+│   └── patient/
+│       ├── StatCard.tsx               ← Reusable stat card
+│       ├── VitalCard.tsx              ← Reusable vital card
+│       ├── ConsultationCard.tsx       ← Reusable consultation card
+│       ├── HabitCheckbox.tsx          ← Habit checkbox item
+│       └── ProgressRing.tsx           ← Circular progress ring
+│
+├── App.tsx                            ← Main app with routes
+└── main.tsx                           ← Entry point
+
+═══════════════════════════════════════════════════════════════════════════════
+ROUTING SETUP:
+═══════════════════════════════════════════════════════════════════════════════
+
+In App.tsx, set up React Router with these routes:
+
+- /dashboard/home        → Home page
+- /dashboard/today       → Today check-in
+- /dashboard/vitals      → Vitals page
+- /dashboard/consultations → Consultations page
+- /dashboard/profile     → Profile page
+- / (root)               → Redirect to /dashboard/home
+
+Default landing page when app loads: /dashboard/home (for now, no login check)
+
+═══════════════════════════════════════════════════════════════════════════════
+UI/UX REQUIREMENTS FOR STEP 1:
+═══════════════════════════════════════════════════════════════════════════════
+
+GENERAL:
+✓ Mobile-first responsive design
+✓ Bottom tab nav on mobile, sidebar nav on desktop (already built)
+✓ Dark/Light mode works on all pages (already enabled)
+✓ Use shadcn UI components ONLY (Card, Button, Input, Slider, etc.)
+✓ Proper spacing and padding
+✓ All components functional with mock data
+
+DASHBOARD HOME:
+✓ Greeting at top with current time (Good Morning/Afternoon/Evening)
+✓ Circular progress ring showing 45/90 days
+✓ 4 stat cards in grid (responsive: 1 col mobile, 2 cols tablet, 4 cols desktop)
+✓ "Today's Tasks" section with 3-4 items
+✓ 3 quick action buttons at bottom
+
+TODAY'S CHECK-IN:
+✓ Large centered "Daily Check-in" button (tap-friendly)
+✓ 4 input cards with proper labels
+✓ Weight input (number, kg)
+✓ Energy level (slider 1-10)
+✓ Sleep hours (number input)
+✓ Notes (textarea)
+✓ Habit checklist below (4 items with checkboxes)
+✓ "Save Check-in" button (prominent)
+✓ Show last check-in timestamp
+
+VITALS PAGE:
+✓ 5 vital cards in responsive grid
+✓ Each card: value, unit, normal range, status badge, last updated
+✓ Simple line chart (weight trend - can use recharts if available)
+✓ "Update Vitals" button
+✓ Color coding: Green (Normal), Yellow (Warning), Red (Alert)
+
+CONSULTATIONS:
+✓ "Upcoming" section (cards for scheduled consultations)
+✓ "Past Consultations" expandable section
+✓ Each card: doctor name, date/time, status, buttons (Join/Report)
+✓ Large calendar icon on consultation card for visual emphasis
+✓ Date formatted as: "Dec 10, 2:00 PM"
+
+PROFILE:
+✓ Section 1: User Info (Name, Email, Phone - name/phone editable)
+✓ Section 2: Program Config (read-only badge displays)
+✓ "Save Profile" button
+✓ "Logout" button (red/danger color)
+✓ Clean form layout with proper spacing
+
+═══════════════════════════════════════════════════════════════════════════════
+DELIVERABLES FOR STEP 1:
+═══════════════════════════════════════════════════════════════════════════════
+
+By end of Step 1, you should have:
+✓ All 5 patient pages created and routable
+✓ Mock data file with all required data
+✓ All components using mock data (API calls commented out)
+✓ Bottom tab nav + sidebar nav properly connected to routes
+✓ Dark/Light mode working across all pages
+✓ All pages responsive (mobile, tablet, desktop)
+✓ shadcn UI components used throughout
+✓ Proper TypeScript typing in all files
+✓ No API calls active (all mock data)
+✓ App loads directly to /dashboard/home (no auth check yet)
+
+═══════════════════════════════════════════════════════════════════════════════
+COMMIT MESSAGE AFTER STEP 1:
+═══════════════════════════════════════════════════════════════════════════════
+
+"Step 1: Patient Dashboard - Routes, UX, and Core Pages with Mock Data"
+
+═══════════════════════════════════════════════════════════════════════════════
+NEXT STEPS (Not for Step 1):
+═══════════════════════════════════════════════════════════════════════════════
+
+Step 2: Add Nutrition, Fitness, Yoga, Habits, Meditation, Resources pages
+Step 3: Integrate API calls, add Admin Dashboard, Authentication flow
+
+═══════════════════════════════════════════════════════════════════════════════
+
+START NOW.

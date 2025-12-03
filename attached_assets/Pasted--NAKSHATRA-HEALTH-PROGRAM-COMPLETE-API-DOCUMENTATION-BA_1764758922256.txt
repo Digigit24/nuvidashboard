@@ -1,0 +1,1982 @@
+# NAKSHATRA HEALTH PROGRAM - COMPLETE API DOCUMENTATION
+
+## **BASE URL**: `http://localhost:8000/api/`
+## **Authentication**: Bearer Token (JWT)
+## **Default Django Groups**: `Patient`, `Doctor`, `Admin`
+
+---
+
+# **1. AUTHENTICATION ENDPOINTS** (`/auth/`)
+
+## **POST /auth/register**
+**Description**: User registration (Patient, Doctor, or Admin)
+
+**Payload**:
+```json
+{
+  "email": "sarah@example.com",
+  "password": "SecurePass123!",
+  "full_name": "Sarah Khan",
+  "phone": "+91-9876543210",
+  "role": "Patient"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "id": 1,
+    "email": "sarah@example.com",
+    "full_name": "Sarah Khan",
+    "role": "Patient",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+---
+
+## **POST /auth/login**
+**Description**: User login
+
+**Payload**:
+```json
+{
+  "email": "sarah@example.com",
+  "password": "SecurePass123!"
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "id": 1,
+    "email": "sarah@example.com",
+    "full_name": "Sarah Khan",
+    "role": "Patient",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+---
+
+## **POST /auth/logout**
+**Description**: User logout
+**Auth Required**: Yes (Bearer Token)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
+}
+```
+
+---
+
+## **GET /auth/user**
+**Description**: Get current logged-in user profile
+**Auth Required**: Yes
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "sarah@example.com",
+    "full_name": "Sarah Khan",
+    "phone": "+91-9876543210",
+    "role": "Patient",
+    "created_at": "2025-12-03T10:00:00Z"
+  }
+}
+```
+
+---
+
+## **PUT /auth/user**
+**Description**: Update user profile
+**Auth Required**: Yes
+
+**Payload**:
+```json
+{
+  "full_name": "Sarah Khan Updated",
+  "phone": "+91-9876543211"
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": {
+    "id": 1,
+    "email": "sarah@example.com",
+    "full_name": "Sarah Khan Updated",
+    "phone": "+91-9876543211",
+    "role": "Patient"
+  }
+}
+```
+
+---
+
+# **2. PATIENT ENDPOINTS** (`/patients/`)
+
+## **GET /patients/me**
+**Description**: Get current patient details
+**Auth Required**: Yes (Patient role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "full_name": "Sarah Khan",
+    "email": "sarah@example.com",
+    "date_of_birth": "1990-05-15",
+    "gender": "Female",
+    "medical_history": "PCOD, irregular periods",
+    "program_start_date": "2025-12-03",
+    "created_at": "2025-12-03T10:00:00Z"
+  }
+}
+```
+
+---
+
+## **GET /patients/templates**
+**Description**: Get all customization templates
+**Auth Required**: No (Public)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "PCOD",
+      "description": "Polycystic Ovary Disease treatment program",
+      "default_modules": ["Nutrition", "Fitness", "Health Metrics", "Consultations"],
+      "created_at": "2025-12-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Fertility",
+      "description": "Fertility enhancement program",
+      "default_modules": ["Nutrition", "Meditation", "Yoga", "Health Metrics", "Consultations"],
+      "created_at": "2025-12-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "General Wellness",
+      "description": "General health and wellness",
+      "default_modules": ["Nutrition", "Fitness", "Meditation", "Consultations"],
+      "created_at": "2025-12-01T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Hormonal Balance",
+      "description": "Hormonal health restoration",
+      "default_modules": ["Nutrition", "Health Metrics", "Consultations", "Resources"],
+      "created_at": "2025-12-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+## **GET /patients/me/config**
+**Description**: Get current patient's customized config
+**Auth Required**: Yes (Patient role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "template_id": 1,
+    "template_name": "PCOD",
+    "condition": "PCOD",
+    "modules": ["Nutrition", "Fitness", "Health Metrics", "Consultations"],
+    "consultation_count": 4,
+    "program_duration": 90,
+    "remaining_days": 45,
+    "progress_percentage": 50,
+    "is_active": true,
+    "created_at": "2025-12-03T10:00:00Z"
+  }
+}
+```
+
+---
+
+## **PUT /patients/me/config**
+**Description**: Update patient config (Admin only)
+**Auth Required**: Yes (Admin role)
+
+**Payload**:
+```json
+{
+  "patient_id": 1,
+  "template_id": 1,
+  "modules": ["Nutrition", "Fitness", "Health Metrics", "Consultations", "Meditation"],
+  "consultation_count": 6,
+  "program_duration": 90
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Patient config updated successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "template_name": "PCOD",
+    "modules": ["Nutrition", "Fitness", "Health Metrics", "Consultations", "Meditation"],
+    "consultation_count": 6,
+    "program_duration": 90
+  }
+}
+```
+
+---
+
+## **GET /patients/me/vitals**
+**Description**: Get patient's current vital signs
+**Auth Required**: Yes (Patient role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "patient_id": 1,
+    "vitals": {
+      "weight": {
+        "value": 68,
+        "unit": "kg",
+        "normal_range": "55-70",
+        "last_updated": "2025-12-02T14:30:00Z",
+        "status": "Normal"
+      },
+      "blood_sugar": {
+        "value": 95,
+        "unit": "mg/dL",
+        "normal_range": "70-100",
+        "last_updated": "2025-12-02T09:00:00Z",
+        "status": "Normal"
+      },
+      "hormone_level": {
+        "value": 12.5,
+        "unit": "mIU/ml",
+        "normal_range": "5-25",
+        "last_updated": "2025-11-28T10:00:00Z",
+        "status": "Normal"
+      },
+      "energy_score": {
+        "value": 8,
+        "unit": "score",
+        "normal_range": "7-10",
+        "last_updated": "2025-12-02T20:00:00Z",
+        "status": "Good"
+      },
+      "sleep_hours": {
+        "value": 7.5,
+        "unit": "hours",
+        "normal_range": "7-9",
+        "last_updated": "2025-12-02T08:00:00Z",
+        "status": "Good"
+      }
+    }
+  }
+}
+```
+
+---
+
+## **POST /patients/me/vitals**
+**Description**: Add/Update patient vital signs
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "weight": 67.5,
+  "blood_sugar": 92,
+  "hormone_level": 11.8,
+  "energy_score": 9,
+  "sleep_hours": 8,
+  "notes": "Feeling much better today"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Vitals recorded successfully",
+  "data": {
+    "id": 5,
+    "patient_id": 1,
+    "weight": 67.5,
+    "blood_sugar": 92,
+    "hormone_level": 11.8,
+    "energy_score": 9,
+    "sleep_hours": 8,
+    "updated_at": "2025-12-03T14:00:00Z"
+  }
+}
+```
+
+---
+
+# **3. CONSULTATION ENDPOINTS** (`/consultations/`)
+
+## **GET /consultations**
+**Description**: Get all consultations (patient sees own, admin/doctor sees all)
+**Auth Required**: Yes
+
+**Query Params**: `status=Scheduled`, `patient_id=1`, `doctor_id=2`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "patient_name": "Sarah Khan",
+      "doctor_id": 2,
+      "doctor_name": "Dr. Priya Singh",
+      "scheduled_date": "2025-12-10T14:00:00Z",
+      "status": "Scheduled",
+      "duration_minutes": 30,
+      "notes": null,
+      "created_at": "2025-12-03T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "patient_name": "Sarah Khan",
+      "doctor_id": 2,
+      "doctor_name": "Dr. Priya Singh",
+      "scheduled_date": "2025-12-17T15:00:00Z",
+      "status": "Scheduled",
+      "duration_minutes": 30,
+      "notes": null,
+      "created_at": "2025-12-03T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "patient_id": 1,
+      "patient_name": "Sarah Khan",
+      "doctor_id": 3,
+      "doctor_name": "Dr. Amit Sharma",
+      "scheduled_date": "2025-12-05T10:00:00Z",
+      "status": "Completed",
+      "duration_minutes": 30,
+      "notes": "PCOD management plan discussed. Continue current diet.",
+      "created_at": "2025-12-01T10:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 3,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **GET /consultations/{id}**
+**Description**: Get specific consultation details
+**Auth Required**: Yes
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "patient_name": "Sarah Khan",
+    "patient_email": "sarah@example.com",
+    "doctor_id": 2,
+    "doctor_name": "Dr. Priya Singh",
+    "doctor_license": "License #12345",
+    "doctor_specialization": "Gynecology & PCOD",
+    "scheduled_date": "2025-12-10T14:00:00Z",
+    "status": "Scheduled",
+    "duration_minutes": 30,
+    "meeting_link": "https://meet.google.com/abc-defg-hij",
+    "notes": null,
+    "created_at": "2025-12-03T10:00:00Z",
+    "consultation_report": null
+  }
+}
+```
+
+---
+
+## **POST /consultations**
+**Description**: Create new consultation (Admin schedules)
+**Auth Required**: Yes (Admin role)
+
+**Payload**:
+```json
+{
+  "patient_id": 1,
+  "doctor_id": 2,
+  "scheduled_date": "2025-12-10T14:00:00Z",
+  "duration_minutes": 30,
+  "notes": "Follow-up consultation"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Consultation scheduled successfully",
+  "data": {
+    "id": 4,
+    "patient_id": 1,
+    "doctor_id": 2,
+    "scheduled_date": "2025-12-10T14:00:00Z",
+    "status": "Scheduled",
+    "duration_minutes": 30,
+    "meeting_link": "https://meet.google.com/xyz-uvwx-yzab",
+    "created_at": "2025-12-03T11:00:00Z"
+  }
+}
+```
+
+---
+
+## **PATCH /consultations/{id}/status**
+**Description**: Update consultation status (Doctor/Admin only)
+**Auth Required**: Yes (Doctor/Admin role)
+
+**Payload**:
+```json
+{
+  "status": "Completed",
+  "notes": "PCOD management plan reviewed. Continue medications."
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Consultation status updated",
+  "data": {
+    "id": 1,
+    "status": "Completed",
+    "notes": "PCOD management plan reviewed. Continue medications.",
+    "updated_at": "2025-12-10T15:00:00Z"
+  }
+}
+```
+
+---
+
+## **GET /consultations/{id}/report**
+**Description**: Get consultation report
+**Auth Required**: Yes
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "consultation_id": 1,
+    "doctor_name": "Dr. Priya Singh",
+    "report_date": "2025-12-05T10:30:00Z",
+    "report_text": "Patient showing good progress. Hormonal levels stable. Continue current treatment plan.",
+    "recommendations": "Maintain current diet and exercise routine. Increase water intake to 3L daily. Schedule next follow-up in 2 weeks.",
+    "next_followup_date": "2025-12-19T10:00:00Z",
+    "created_at": "2025-12-05T10:30:00Z"
+  }
+}
+```
+
+---
+
+# **4. NUTRITION ENDPOINTS** (`/nutrition/`)
+
+## **GET /meals**
+**Description**: Get available meals (filtered by condition)
+**Auth Required**: No
+**Query Params**: `condition=PCOD`, `page=1`, `limit=10`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Quinoa Buddha Bowl",
+      "description": "High-protein, low-glycemic bowl with quinoa, roasted vegetables, and tahini dressing",
+      "calories": 450,
+      "condition": "PCOD",
+      "ingredients": ["Quinoa", "Spinach", "Bell Pepper", "Chickpeas", "Tahini", "Lemon"],
+      "preparation_time": 20,
+      "servings": 1,
+      "image_url": "https://cdn.example.com/meals/quinoa-bowl.jpg",
+      "created_at": "2025-11-20T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Grilled Salmon with Broccoli",
+      "description": "Omega-3 rich salmon with steamed broccoli and olive oil drizzle",
+      "calories": 520,
+      "condition": "PCOD",
+      "ingredients": ["Salmon Fillet", "Broccoli", "Olive Oil", "Garlic", "Lemon"],
+      "preparation_time": 25,
+      "servings": 1,
+      "image_url": "https://cdn.example.com/meals/salmon.jpg",
+      "created_at": "2025-11-20T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Vegetable Stir-Fry with Tofu",
+      "description": "Low-calorie, high-protein vegetable stir-fry with tofu",
+      "calories": 380,
+      "condition": "Fertility",
+      "ingredients": ["Tofu", "Carrot", "Broccoli", "Soy Sauce", "Sesame Oil", "Ginger"],
+      "preparation_time": 15,
+      "servings": 1,
+      "image_url": "https://cdn.example.com/meals/stir-fry.jpg",
+      "created_at": "2025-11-20T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 45,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **GET /meals/{id}**
+**Description**: Get meal details with full recipe
+**Auth Required**: No
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Quinoa Buddha Bowl",
+    "description": "High-protein, low-glycemic bowl",
+    "calories": 450,
+    "condition": "PCOD",
+    "ingredients": [
+      {"name": "Quinoa", "quantity": "1", "unit": "cup"},
+      {"name": "Spinach", "quantity": "2", "unit": "cups"},
+      {"name": "Bell Pepper", "quantity": "1", "unit": "piece"},
+      {"name": "Chickpeas", "quantity": "0.5", "unit": "cup"},
+      {"name": "Tahini", "quantity": "2", "unit": "tbsp"}
+    ],
+    "instructions": [
+      "Cook quinoa as per package instructions",
+      "Roast vegetables at 200°C for 20 minutes",
+      "Mix tahini with lemon juice and water",
+      "Assemble bowl and drizzle with dressing"
+    ],
+    "nutrition_info": {
+      "protein": 18,
+      "carbs": 65,
+      "fat": 12,
+      "fiber": 12
+    },
+    "preparation_time": 20,
+    "servings": 1
+  }
+}
+```
+
+---
+
+## **POST /meal-logs**
+**Description**: Log meal intake
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "meal_id": 1,
+  "date": "2025-12-03",
+  "time": "12:30",
+  "quantity": 1.0,
+  "custom_calories": null
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Meal logged successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "meal_id": 1,
+    "meal_name": "Quinoa Buddha Bowl",
+    "date": "2025-12-03",
+    "time": "12:30",
+    "calories": 450,
+    "logged_at": "2025-12-03T12:30:00Z"
+  }
+}
+```
+
+---
+
+## **GET /meal-logs**
+**Description**: Get patient's meal logs
+**Auth Required**: Yes (Patient role)
+**Query Params**: `date=2025-12-03`, `start_date=2025-12-01`, `end_date=2025-12-03`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "date": "2025-12-03",
+    "total_calories": 1350,
+    "meals": [
+      {
+        "id": 1,
+        "meal_name": "Quinoa Buddha Bowl",
+        "time": "08:30",
+        "calories": 450
+      },
+      {
+        "id": 2,
+        "meal_name": "Grilled Salmon with Broccoli",
+        "time": "12:30",
+        "calories": 520
+      },
+      {
+        "id": 3,
+        "meal_name": "Vegetable Salad",
+        "time": "18:00",
+        "calories": 380
+      }
+    ]
+  }
+}
+```
+
+---
+
+## **POST /calorie-entry**
+**Description**: Log manual calorie entry (if meal not listed)
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "food_description": "2 Chapati with Dal",
+  "calories": 320,
+  "date": "2025-12-03",
+  "time": "19:00"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Calorie entry logged",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "food_description": "2 Chapati with Dal",
+    "calories": 320,
+    "date": "2025-12-03",
+    "time": "19:00"
+  }
+}
+```
+
+---
+
+# **5. FITNESS ENDPOINTS** (`/fitness/`)
+
+## **GET /yoga-sessions**
+**Description**: Get available yoga sessions
+**Auth Required**: No
+**Query Params**: `condition=PCOD`, `difficulty=Easy`, `page=1`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Morning Yoga for PCOD",
+      "description": "Gentle yoga sequence focusing on hormone balance and pelvic health",
+      "duration_mins": 20,
+      "difficulty": "Easy",
+      "condition": "PCOD",
+      "video_url": "https://cdn.example.com/yoga/morning-pcod.mp4",
+      "thumbnail": "https://cdn.example.com/yoga/morning-pcod-thumb.jpg",
+      "instructor": "Priya Yoga Master",
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Evening Relaxation Yoga",
+      "description": "Wind-down yoga for stress relief and better sleep",
+      "duration_mins": 15,
+      "difficulty": "Easy",
+      "condition": "General",
+      "video_url": "https://cdn.example.com/yoga/evening-relax.mp4",
+      "thumbnail": "https://cdn.example.com/yoga/evening-relax-thumb.jpg",
+      "instructor": "Amit Yoga Trainer",
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "title": "Fertility-Boosting Yoga",
+      "description": "Yoga poses designed to improve fertility and reproductive health",
+      "duration_mins": 25,
+      "difficulty": "Medium",
+      "condition": "Fertility",
+      "video_url": "https://cdn.example.com/yoga/fertility.mp4",
+      "thumbnail": "https://cdn.example.com/yoga/fertility-thumb.jpg",
+      "instructor": "Dr. Yoga Specialist",
+      "created_at": "2025-11-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 25,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **POST /yoga-logs**
+**Description**: Log completed yoga session
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "yoga_id": 1,
+  "date": "2025-12-03",
+  "completed": true,
+  "duration_actual": 20,
+  "notes": "Felt great after session"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Yoga session logged successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "yoga_id": 1,
+    "yoga_title": "Morning Yoga for PCOD",
+    "date": "2025-12-03",
+    "completed": true,
+    "duration_actual": 20,
+    "logged_at": "2025-12-03T06:45:00Z"
+  }
+}
+```
+
+---
+
+## **GET /yoga-logs**
+**Description**: Get patient's yoga logs
+**Auth Required**: Yes (Patient role)
+**Query Params**: `date=2025-12-03`, `start_date=2025-12-01`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "week_of": "2025-11-27 to 2025-12-03",
+    "completed_sessions": 5,
+    "target_sessions": 6,
+    "completion_rate": 83,
+    "logs": [
+      {
+        "id": 1,
+        "date": "2025-12-03",
+        "yoga_title": "Morning Yoga for PCOD",
+        "duration": 20,
+        "completed": true
+      },
+      {
+        "id": 2,
+        "date": "2025-12-02",
+        "yoga_title": "Evening Relaxation Yoga",
+        "duration": 15,
+        "completed": true
+      },
+      {
+        "id": 3,
+        "date": "2025-12-01",
+        "yoga_title": "Morning Yoga for PCOD",
+        "duration": 20,
+        "completed": true
+      }
+    ]
+  }
+}
+```
+
+---
+
+## **GET /workouts**
+**Description**: Get available workouts
+**Auth Required**: No
+**Query Params**: `condition=PCOD`, `difficulty=Medium`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Low-Impact Cardio",
+      "description": "Walking and cycling exercises for cardiovascular health",
+      "duration_mins": 30,
+      "difficulty": "Medium",
+      "condition": "PCOD",
+      "video_url": "https://cdn.example.com/workouts/cardio.mp4",
+      "thumbnail": "https://cdn.example.com/workouts/cardio-thumb.jpg",
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Strength Training for Women",
+      "description": "Light weight training focusing on core and lower body",
+      "duration_mins": 25,
+      "difficulty": "Medium",
+      "condition": "General",
+      "video_url": "https://cdn.example.com/workouts/strength.mp4",
+      "thumbnail": "https://cdn.example.com/workouts/strength-thumb.jpg",
+      "created_at": "2025-11-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 18,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **POST /workout-logs**
+**Description**: Log completed workout
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "workout_id": 1,
+  "date": "2025-12-03",
+  "completed": true,
+  "intensity_level": 7,
+  "notes": "Good energy today"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Workout logged successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "workout_id": 1,
+    "workout_title": "Low-Impact Cardio",
+    "date": "2025-12-03",
+    "completed": true,
+    "intensity_level": 7,
+    "duration": 30
+  }
+}
+```
+
+---
+
+# **6. HEALTH METRICS ENDPOINTS** (`/health-metrics/`)
+
+## **GET /vital-types**
+**Description**: Get all vital types available
+**Auth Required**: No
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Weight",
+      "unit": "kg",
+      "normal_range_min": 50,
+      "normal_range_max": 75,
+      "description": "Body weight measurement"
+    },
+    {
+      "id": 2,
+      "name": "Blood Sugar",
+      "unit": "mg/dL",
+      "normal_range_min": 70,
+      "normal_range_max": 100,
+      "description": "Fasting blood glucose level"
+    },
+    {
+      "id": 3,
+      "name": "Hormone Level",
+      "unit": "mIU/ml",
+      "normal_range_min": 5,
+      "normal_range_max": 25,
+      "description": "FSH hormone level"
+    },
+    {
+      "id": 4,
+      "name": "Energy Score",
+      "unit": "score",
+      "normal_range_min": 7,
+      "normal_range_max": 10,
+      "description": "Daily energy level (1-10)"
+    },
+    {
+      "id": 5,
+      "name": "Sleep Hours",
+      "unit": "hours",
+      "normal_range_min": 7,
+      "normal_range_max": 9,
+      "description": "Hours of sleep per night"
+    }
+  ]
+}
+```
+
+---
+
+## **GET /vital-logs**
+**Description**: Get patient's vital logs
+**Auth Required**: Yes (Patient role)
+**Query Params**: `vital_type_id=1`, `days=30`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "vital_type": "Weight",
+    "unit": "kg",
+    "logs": [
+      {
+        "id": 1,
+        "date": "2025-12-03",
+        "value": 67.5,
+        "status": "Normal"
+      },
+      {
+        "id": 2,
+        "date": "2025-12-01",
+        "value": 67.8,
+        "status": "Normal"
+      },
+      {
+        "id": 3,
+        "date": "2025-11-29",
+        "value": 68,
+        "status": "Normal"
+      },
+      {
+        "id": 4,
+        "date": "2025-11-27",
+        "value": 68.2,
+        "status": "Normal"
+      },
+      {
+        "id": 5,
+        "date": "2025-11-25",
+        "value": 68.5,
+        "status": "Normal"
+      }
+    ],
+    "trend": "Decreasing",
+    "average": 68.0,
+    "min": 67.5,
+    "max": 68.5
+  }
+}
+```
+
+---
+
+## **POST /vital-logs**
+**Description**: Add vital measurement
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "vital_type_id": 1,
+  "value": 67.5,
+  "date": "2025-12-03",
+  "time": "08:00",
+  "notes": "After workout"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Vital logged successfully",
+  "data": {
+    "id": 6,
+    "patient_id": 1,
+    "vital_type": "Weight",
+    "value": 67.5,
+    "unit": "kg",
+    "status": "Normal",
+    "date": "2025-12-03",
+    "time": "08:00"
+  }
+}
+```
+
+---
+
+# **7. HABITS ENDPOINTS** (`/habits/`)
+
+## **GET /habit-templates**
+**Description**: Get available habit templates
+**Auth Required**: No
+**Query Params**: `condition=PCOD`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Drink Water",
+      "description": "Drink 3 liters of water daily",
+      "target_value": 3,
+      "unit": "liters",
+      "frequency": "Daily",
+      "condition": "General"
+    },
+    {
+      "id": 2,
+      "name": "Sleep 8 Hours",
+      "description": "Get 8 hours of quality sleep",
+      "target_value": 8,
+      "unit": "hours",
+      "frequency": "Daily",
+      "condition": "PCOD"
+    },
+    {
+      "id": 3,
+      "name": "Take Medications",
+      "description": "Take prescribed medications on time",
+      "target_value": 1,
+      "unit": "times",
+      "frequency": "Daily",
+      "condition": "PCOD"
+    },
+    {
+      "id": 4,
+      "name": "Meditation",
+      "description": "Meditate for 10 minutes",
+      "target_value": 10,
+      "unit": "minutes",
+      "frequency": "Daily",
+      "condition": "Fertility"
+    },
+    {
+      "id": 5,
+      "name": "Avoid Processed Foods",
+      "description": "Avoid processed foods and sugary drinks",
+      "target_value": 1,
+      "unit": "day",
+      "frequency": "Daily",
+      "condition": "PCOD"
+    }
+  ]
+}
+```
+
+---
+
+## **GET /habits**
+**Description**: Get patient's active habits
+**Auth Required**: Yes (Patient role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "habit_id": 1,
+      "template_id": 1,
+      "template_name": "Drink Water",
+      "target": 3,
+      "unit": "liters",
+      "frequency": "Daily",
+      "start_date": "2025-12-03",
+      "is_active": true,
+      "streak_days": 0
+    },
+    {
+      "id": 2,
+      "habit_id": 2,
+      "template_id": 2,
+      "template_name": "Sleep 8 Hours",
+      "target": 8,
+      "unit": "hours",
+      "frequency": "Daily",
+      "start_date": "2025-12-01",
+      "is_active": true,
+      "streak_days": 3
+    },
+    {
+      "id": 3,
+      "habit_id": 3,
+      "template_id": 5,
+      "template_name": "Avoid Processed Foods",
+      "target": 1,
+      "unit": "day",
+      "frequency": "Daily",
+      "start_date": "2025-11-20",
+      "is_active": true,
+      "streak_days": 14
+    }
+  ]
+}
+```
+
+---
+
+## **POST /habits**
+**Description**: Add habit to patient's routine
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "template_id": 1,
+  "start_date": "2025-12-03"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Habit added successfully",
+  "data": {
+    "id": 4,
+    "patient_id": 1,
+    "template_id": 1,
+    "habit_name": "Drink Water",
+    "start_date": "2025-12-03",
+    "is_active": true
+  }
+}
+```
+
+---
+
+## **POST /habit-logs**
+**Description**: Log habit completion
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "habit_id": 1,
+  "date": "2025-12-03",
+  "completed": true,
+  "value": 3.0,
+  "notes": "Completed water intake goal"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Habit logged successfully",
+  "data": {
+    "id": 1,
+    "habit_id": 1,
+    "date": "2025-12-03",
+    "completed": true,
+    "value": 3.0,
+    "habit_name": "Drink Water",
+    "streak_days": 1
+  }
+}
+```
+
+---
+
+## **GET /habit-logs**
+**Description**: Get patient's habit logs
+**Auth Required**: Yes (Patient role)
+**Query Params**: `start_date=2025-12-01`, `end_date=2025-12-03`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "week_of": "2025-11-27 to 2025-12-03",
+    "habits_summary": [
+      {
+        "habit_name": "Sleep 8 Hours",
+        "target": 8,
+        "completed_days": 6,
+        "total_days": 7,
+        "completion_rate": 86,
+        "current_streak": 3,
+        "logs": [
+          {"date": "2025-12-03", "value": 8, "completed": true},
+          {"date": "2025-12-02", "value": 7.5, "completed": true},
+          {"date": "2025-12-01", "value": 8, "completed": true}
+        ]
+      },
+      {
+        "habit_name": "Drink Water",
+        "target": 3,
+        "completed_days": 5,
+        "total_days": 7,
+        "completion_rate": 71,
+        "current_streak": 0,
+        "logs": [
+          {"date": "2025-12-03", "value": 3, "completed": true},
+          {"date": "2025-12-02", "value": 2.5, "completed": false},
+          {"date": "2025-12-01", "value": 3, "completed": true}
+        ]
+      }
+    ]
+  }
+}
+```
+
+---
+
+# **8. MEDITATION ENDPOINTS** (`/meditation/`)
+
+## **GET /meditation-sessions**
+**Description**: Get available meditation sessions
+**Auth Required**: No
+**Query Params**: `condition=Fertility`, `duration=10`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Stress Relief Meditation",
+      "description": "Guided meditation for reducing stress and anxiety",
+      "duration_mins": 10,
+      "condition": "General",
+      "audio_url": "https://cdn.example.com/meditation/stress-relief.mp3",
+      "thumbnail": "https://cdn.example.com/meditation/stress-thumb.jpg",
+      "instructor": "Mindfulness Expert",
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Fertility & Positive Energy",
+      "description": "Meditation focused on fertility enhancement and positive mindset",
+      "duration_mins": 15,
+      "condition": "Fertility",
+      "audio_url": "https://cdn.example.com/meditation/fertility-energy.mp3",
+      "thumbnail": "https://cdn.example.com/meditation/fertility-thumb.jpg",
+      "instructor": "Wellness Coach",
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "title": "Sleep Meditation",
+      "description": "Relaxing meditation to improve sleep quality",
+      "duration_mins": 20,
+      "condition": "General",
+      "audio_url": "https://cdn.example.com/meditation/sleep.mp3",
+      "thumbnail": "https://cdn.example.com/meditation/sleep-thumb.jpg",
+      "instructor": "Sleep Specialist",
+      "created_at": "2025-11-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 12,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **POST /meditation-logs**
+**Description**: Log meditation session completion
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "session_id": 1,
+  "date": "2025-12-03",
+  "completed": true,
+  "time_spent": 10,
+  "notes": "Felt very relaxed"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Meditation logged successfully",
+  "data": {
+    "id": 1,
+    "patient_id": 1,
+    "session_id": 1,
+    "session_title": "Stress Relief Meditation",
+    "date": "2025-12-03",
+    "completed": true,
+    "time_spent": 10
+  }
+}
+```
+
+---
+
+## **GET /meditation-logs**
+**Description**: Get patient's meditation logs
+**Auth Required**: Yes (Patient role)
+**Query Params**: `days=30`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "total_sessions": 12,
+    "total_minutes": 145,
+    "last_30_days_completion": 45,
+    "logs": [
+      {
+        "id": 1,
+        "date": "2025-12-03",
+        "session_title": "Stress Relief Meditation",
+        "duration": 10,
+        "time_spent": 10,
+        "completed": true
+      },
+      {
+        "id": 2,
+        "date": "2025-12-01",
+        "session_title": "Fertility & Positive Energy",
+        "duration": 15,
+        "time_spent": 15,
+        "completed": true
+      }
+    ]
+  }
+}
+```
+
+---
+
+# **9. RESOURCES ENDPOINTS** (`/resources/`)
+
+## **GET /resources**
+**Description**: Get educational resources and guides
+**Auth Required**: No
+**Query Params**: `category=Articles`, `condition=PCOD`, `page=1`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "title": "Understanding PCOD: Complete Guide",
+      "category": "Articles",
+      "condition": "PCOD",
+      "content_preview": "PCOD is a hormonal disorder that affects women of reproductive age...",
+      "thumbnail": "https://cdn.example.com/resources/pcod-guide.jpg",
+      "read_time_mins": 8,
+      "created_at": "2025-11-15T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "title": "PCOD & Nutrition: Foods to Avoid",
+      "category": "Guides",
+      "condition": "PCOD",
+      "content_preview": "Processed foods and refined sugars worsen PCOD symptoms...",
+      "thumbnail": "https://cdn.example.com/resources/pcod-nutrition.jpg",
+      "read_time_mins": 6,
+      "created_at": "2025-11-12T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "title": "Fertility Myths Debunked",
+      "category": "Articles",
+      "condition": "Fertility",
+      "content_preview": "Not all common fertility myths are true. Let's explore the facts...",
+      "thumbnail": "https://cdn.example.com/resources/fertility-myths.jpg",
+      "read_time_mins": 7,
+      "created_at": "2025-11-10T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 42,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **GET /resources/{id}**
+**Description**: Get full resource content
+**Auth Required**: No
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "title": "Understanding PCOD: Complete Guide",
+    "category": "Articles",
+    "condition": "PCOD",
+    "thumbnail": "https://cdn.example.com/resources/pcod-guide.jpg",
+    "content": "PCOD is a hormonal disorder...[full content]...",
+    "read_time_mins": 8,
+    "author": "Dr. Priya Singh",
+    "created_at": "2025-11-15T00:00:00Z",
+    "updated_at": "2025-11-15T00:00:00Z"
+  }
+}
+```
+
+---
+
+# **10. COMMUNITY ENDPOINTS** (`/community/`)
+
+## **GET /progress-stories**
+**Description**: Get success stories from other patients
+**Auth Required**: No
+**Query Params**: `condition=PCOD`, `page=1`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "patient_name": "Priya M.",
+      "title": "My PCOD Journey: From Diagnosis to Wellness",
+      "description": "After 3 months of the program, my hormone levels stabilized and I lost 5kg!",
+      "before_after_image": "https://cdn.example.com/stories/priya-before-after.jpg",
+      "condition": "PCOD",
+      "days_in_program": 90,
+      "created_at": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "patient_name": "Anjali R.",
+      "title": "How I Regained My Energy with Nakshatra",
+      "description": "The yoga and nutrition plan helped me sleep better and feel more energetic",
+      "before_after_image": "https://cdn.example.com/stories/anjali-before-after.jpg",
+      "condition": "General",
+      "days_in_program": 60,
+      "created_at": "2025-10-28T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "patient_name": "Deepa S.",
+      "title": "Fertility Program Success: Pregnancy After PCOD",
+      "description": "After completing the fertility program, I found out I'm pregnant!",
+      "before_after_image": "https://cdn.example.com/stories/deepa-before-after.jpg",
+      "condition": "Fertility",
+      "days_in_program": 90,
+      "created_at": "2025-10-15T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 18,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **POST /progress-stories**
+**Description**: Submit patient's progress story (Patient only)
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "title": "My Healing Journey",
+  "description": "After 90 days of following the program diligently...",
+  "before_after_image": "base64_encoded_image_data_or_url"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Story submitted successfully. Pending admin approval.",
+  "data": {
+    "id": 20,
+    "patient_id": 1,
+    "patient_name": "Sarah Khan",
+    "title": "My Healing Journey",
+    "status": "Pending",
+    "created_at": "2025-12-03T14:00:00Z"
+  }
+}
+```
+
+---
+
+## **GET /forum-posts**
+**Description**: Get community forum discussions
+**Auth Required**: No
+**Query Params**: `category=PCOD`, `sort=recent`, `page=1`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "patient_name": "Sarah K.",
+      "title": "Tips for managing PCOD symptoms naturally?",
+      "content": "I'm 2 months into the program and looking for additional tips...",
+      "category": "PCOD",
+      "replies_count": 8,
+      "is_pinned": false,
+      "created_at": "2025-12-02T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "patient_name": "Zara P.",
+      "title": "Best yoga poses for fertility enhancement",
+      "content": "Has anyone found specific yoga poses helpful for fertility?",
+      "category": "Fertility",
+      "replies_count": 12,
+      "is_pinned": true,
+      "created_at": "2025-12-01T15:00:00Z"
+    },
+    {
+      "id": 3,
+      "patient_name": "Neha S.",
+      "title": "Dealing with medication side effects",
+      "content": "Is anyone experiencing side effects from the medication?",
+      "category": "General",
+      "replies_count": 5,
+      "is_pinned": false,
+      "created_at": "2025-11-30T09:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 87,
+    "page": 1,
+    "page_size": 10
+  }
+}
+```
+
+---
+
+## **POST /forum-posts**
+**Description**: Create forum post
+**Auth Required**: Yes (Patient role)
+
+**Payload**:
+```json
+{
+  "title": "Has anyone tried intermittent fasting with PCOD?",
+  "content": "I'm thinking of trying intermittent fasting but worried about PCOD...",
+  "category": "PCOD"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "message": "Post created successfully",
+  "data": {
+    "id": 50,
+    "patient_id": 1,
+    "patient_name": "Sarah Khan",
+    "title": "Has anyone tried intermittent fasting with PCOD?",
+    "category": "PCOD",
+    "created_at": "2025-12-03T14:30:00Z"
+  }
+}
+```
+
+---
+
+# **11. ADMIN ENDPOINTS** (`/admin/`)
+
+## **GET /admin/patients**
+**Description**: Get all patients (Admin only)
+**Auth Required**: Yes (Admin role)
+**Query Params**: `status=Active`, `condition=PCOD`, `page=1`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "patient_name": "Sarah Khan",
+      "email": "sarah@example.com",
+      "condition": "PCOD",
+      "program_start_date": "2025-12-03",
+      "days_completed": 0,
+      "progress_percentage": 0,
+      "status": "Active",
+      "last_login": "2025-12-03T14:00:00Z"
+    },
+    {
+      "id": 2,
+      "patient_name": "Priya Sharma",
+      "email": "priya@example.com",
+      "condition": "Fertility",
+      "program_start_date": "2025-11-15",
+      "days_completed": 18,
+      "progress_percentage": 20,
+      "status": "Active",
+      "last_login": "2025-12-02T10:30:00Z"
+    },
+    {
+      "id": 3,
+      "patient_name": "Anjali Desai",
+      "email": "anjali@example.com",
+      "condition": "General",
+      "program_start_date": "2025-10-20",
+      "days_completed": 44,
+      "progress_percentage": 49,
+      "status": "Active",
+      "last_login": "2025-12-01T16:00:00Z"
+    }
+  ],
+  "pagination": {
+    "total": 24,
+    "page": 1,
+    "page_size": 10
+  },
+  "summary": {
+    "total_patients": 24,
+    "active_patients": 20,
+    "completed_program": 4,
+    "dropout_risk": 2
+  }
+}
+```
+
+---
+
+## **GET /admin/dashboard**
+**Description**: Get admin dashboard overview
+**Auth Required**: Yes (Admin role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "total_patients": 24,
+      "active_patients": 20,
+      "completed_program": 4,
+      "dropout_risk": 2
+    },
+    "by_condition": {
+      "PCOD": 10,
+      "Fertility": 8,
+      "General": 4,
+      "Hormonal": 2
+    },
+    "program_progress": {
+      "0-30_days": 8,
+      "30-60_days": 9,
+      "60-90_days": 4,
+      "completed": 3
+    },
+    "consultation_stats": {
+      "total_scheduled": 45,
+      "completed": 32,
+      "pending": 13,
+      "cancelled": 0
+    },
+    "compliance_rate": 78
+  }
+}
+```
+
+---
+
+## **GET /admin/patients/{id}/details**
+**Description**: Get detailed patient profile (Admin only)
+**Auth Required**: Yes (Admin role)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "patient": {
+      "id": 1,
+      "full_name": "Sarah Khan",
+      "email": "sarah@example.com",
+      "phone": "+91-9876543210",
+      "date_of_birth": "1990-05-15",
+      "gender": "Female",
+      "medical_history": "PCOD, irregular periods"
+    },
+    "program": {
+      "condition": "PCOD",
+      "template": "PCOD",
+      "modules": ["Nutrition", "Fitness", "Health Metrics", "Consultations"],
+      "consultation_count": 4,
+      "program_duration": 90,
+      "start_date": "2025-12-03",
+      "days_completed": 0,
+      "progress_percentage": 0
+    },
+    "latest_vitals": {
+      "weight": 68,
+      "blood_sugar": 95,
+      "hormone_level": 12.5,
+      "energy_score": 8,
+      "sleep_hours": 7.5
+    },
+    "consultations": [
+      {
+        "id": 1,
+        "doctor": "Dr. Priya Singh",
+        "scheduled": "2025-12-10T14:00:00Z",
+        "status": "Scheduled"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## **GET /admin/reports**
+**Description**: Generate program reports
+**Auth Required**: Yes (Admin role)
+**Query Params**: `report_type=compliance`, `start_date=2025-11-01`, `end_date=2025-12-03`
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "report_type": "Compliance Report",
+    "period": "2025-11-01 to 2025-12-03",
+    "total_patients": 24,
+    "metrics": {
+      "average_program_completion": 45,
+      "average_consultation_attendance": 82,
+      "average_yoga_completion": 76,
+      "average_meal_logging": 68,
+      "average_vital_updates": 71
+    },
+    "by_condition": {
+      "PCOD": {
+        "patients": 10,
+        "avg_completion": 48,
+        "dropout_rate": 10
+      },
+      "Fertility": {
+        "patients": 8,
+        "avg_completion": 52,
+        "dropout_rate": 0
+      }
+    }
+  }
+}
+```
+
+---
+
+## **PUT /admin/patients/{id}/config**
+**Description**: Update patient configuration
+**Auth Required**: Yes (Admin role)
+**See above**: Patient Config Update section
+
+---
+
+# **12. COMMON RESPONSE STRUCTURES**
+
+## **Error Response (4xx/5xx)**
+```json
+{
+  "success": false,
+  "error": "Error code",
+  "message": "Human-readable error message",
+  "details": {
+    "field_name": "Validation error details"
+  }
+}
+```
+
+### **Common Error Responses**:
+- **400 Bad Request**: Invalid payload
+- **401 Unauthorized**: Missing/invalid token
+- **403 Forbidden**: User lacks permission
+- **404 Not Found**: Resource not found
+- **500 Internal Server Error**: Server error
+
+---
+
+## **Authentication Header**
+All requests except login/register/public endpoints:
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+## **Pagination (All List Endpoints)**
+```json
+"pagination": {
+  "total": 100,
+  "page": 1,
+  "page_size": 10,
+  "total_pages": 10
+}
+```
+
+---
+
+# **SUMMARY TABLE - All Endpoints**
+
+| App | Endpoint | Method | Auth | Purpose |
+|-----|----------|--------|------|---------|
+| auth | /auth/register | POST | No | Register new user |
+| auth | /auth/login | POST | No | User login |
+| auth | /auth/logout | POST | Yes | User logout |
+| auth | /auth/user | GET | Yes | Get profile |
+| auth | /auth/user | PUT | Yes | Update profile |
+| patients | /patients/me | GET | Yes | Patient profile |
+| patients | /patients/templates | GET | No | Get templates |
+| patients | /patients/me/config | GET | Yes | Patient config |
+| patients | /patients/me/config | PUT | Yes(Admin) | Update config |
+| patients | /patients/me/vitals | GET | Yes | Get vitals |
+| patients | /patients/me/vitals | POST | Yes | Log vitals |
+| consultations | /consultations | GET | Yes | List consultations |
+| consultations | /consultations/{id} | GET | Yes | Get consultation |
+| consultations | /consultations | POST | Yes(Admin) | Create consultation |
+| consultations | /consultations/{id}/status | PATCH | Yes(Dr/Admin) | Update status |
+| nutrition | /meals | GET | No | List meals |
+| nutrition | /meals/{id} | GET | No | Get meal details |
+| nutrition | /meal-logs | POST | Yes | Log meal |
+| nutrition | /meal-logs | GET | Yes | Get meal logs |
+| nutrition | /calorie-entry | POST | Yes | Log calories |
+| fitness | /yoga-sessions | GET | No | List yoga |
+| fitness | /yoga-logs | POST | Yes | Log yoga |
+| fitness | /yoga-logs | GET | Yes | Get yoga logs |
+| fitness | /workouts | GET | No | List workouts |
+| fitness | /workout-logs | POST | Yes | Log workout |
+| health | /vital-types | GET | No | Vital types |
+| health | /vital-logs | GET | Yes | Get vital logs |
+| health | /vital-logs | POST | Yes | Add vital |
+| habits | /habit-templates | GET | No | Habit templates |
+| habits | /habits | GET | Yes | Patient habits |
+| habits | /habits | POST | Yes | Add habit |
+| habits | /habit-logs | POST | Yes | Log habit |
+| habits | /habit-logs | GET | Yes | Get habit logs |
+| meditation | /meditation-sessions | GET | No | List sessions |
+| meditation | /meditation-logs | POST | Yes | Log meditation |
+| meditation | /meditation-logs | GET | Yes | Get meditation logs |
+| resources | /resources | GET | No | List resources |
+| resources | /resources/{id} | GET | No | Get resource |
+| community | /progress-stories | GET | No | List stories |
+| community | /progress-stories | POST | Yes | Submit story |
+| community | /forum-posts | GET | No | List posts |
+| community | /forum-posts | POST | Yes | Create post |
+| admin | /admin/patients | GET | Yes(Admin) | List all patients |
+| admin | /admin/dashboard | GET | Yes(Admin) | Admin dashboard |
+| admin | /admin/patients/{id}/details | GET | Yes(Admin) | Patient details |
+| admin | /admin/reports | GET | Yes(Admin) | Reports |
+
+---
+
+**Total: 48 Endpoints | 12 Apps | Complete API** ✅
+
+Use these mock responses directly in your frontend prototype!

@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
 import { ThemeProvider } from './ThemeProvider';
+import { BottomTabNav } from './patient/BottomTabNav';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -26,6 +27,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </main>
           </SidebarInset>
         </div>
+        <BottomTabNav />
       </SidebarProvider>
     </ThemeProvider>
   );
