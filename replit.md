@@ -10,6 +10,48 @@ The application is currently configured with mock data while the API integration
 
 Preferred communication style: Simple, everyday language.
 
+## Project Structure
+
+```
+client/src/
+├── components/
+│   ├── patient/           # Patient-specific components
+│   │   ├── BottomTabNav.tsx
+│   │   ├── ConsultationCard.tsx
+│   │   ├── HabitCheckbox.tsx
+│   │   ├── ProgressRing.tsx
+│   │   ├── StatCard.tsx
+│   │   └── VitalCard.tsx
+│   ├── ui/                # Shadcn UI components
+│   ├── AppSidebar.tsx
+│   ├── DashboardLayout.tsx
+│   ├── Header.tsx
+│   ├── ThemeProvider.tsx
+│   └── ThemeToggle.tsx
+├── hooks/
+│   ├── use-mobile.tsx
+│   ├── use-theme.ts
+│   └── use-toast.ts
+├── lib/
+│   ├── apiConfig.ts       # API configuration for future integration
+│   ├── mockData.ts        # Mock data for development
+│   ├── queryClient.ts
+│   └── utils.ts
+├── pages/
+│   ├── patient/           # Patient dashboard pages
+│   │   ├── Consultations.tsx
+│   │   ├── Home.tsx
+│   │   ├── Profile.tsx
+│   │   ├── Today.tsx
+│   │   └── Vitals.tsx
+│   └── not-found.tsx
+├── types/
+│   └── index.ts           # TypeScript type definitions
+├── App.tsx
+├── index.css
+└── main.tsx
+```
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -34,16 +76,22 @@ Preferred communication style: Simple, everyday language.
 
 **Routing Structure**
 - Patient dashboard routes under `/dashboard/*`
-  - `/dashboard/home` - Main dashboard overview
-  - `/dashboard/today` - Daily check-in and quick actions
-  - `/dashboard/vitals` - Health metrics tracking
-  - `/dashboard/consultations` - Consultation management
-  - `/dashboard/profile` - Patient profile settings
+  - `/dashboard/home` - Main dashboard overview with progress ring and stats
+  - `/dashboard/today` - Daily check-in and habit tracking
+  - `/dashboard/vitals` - Health metrics tracking with charts
+  - `/dashboard/consultations` - Upcoming and past consultation management
+  - `/dashboard/profile` - Patient profile and program settings
+- Root `/` redirects to `/dashboard/home`
 - Admin routes under `/admin/*` (structure defined, UI pending)
+
+**Navigation Components**
+- Desktop: Sidebar navigation with patient menu items
+- Mobile: Bottom tab navigation (5 tabs) visible on screens < 768px
+- Theme toggle in header for dark/light mode switching
 
 **Design System**
 - Consistent spacing using Tailwind units (2, 4, 6, 8, 12, 16)
-- Typography scale with Inter or similar sans-serif font
+- Typography scale with Inter/Open Sans font
 - Responsive grid system with mobile-first breakpoints
 - Custom CSS variables for theming in both light and dark modes
 - Elevation system using subtle shadows and overlays
@@ -58,116 +106,86 @@ Preferred communication style: Simple, everyday language.
 **API Organization**
 - Routes registered in `server/routes.ts`
 - All API endpoints prefixed with `/api`
+- API configuration in `client/src/lib/apiConfig.ts` for future integration
 - Logging middleware for request tracking and performance monitoring
-- Static file serving for production builds
 
 **Data Access Layer**
 - Storage interface (`IStorage`) for CRUD operations
 - In-memory storage implementation (`MemStorage`) for development
 - Designed to be swapped with database implementation (PostgreSQL via Drizzle ORM)
-- User model defined in shared schema
+- Patient domain models defined in shared schema
 
-**Build Process**
-- Separate client and server builds
-- Client built with Vite to `dist/public`
-- Server bundled with esbuild to `dist/index.cjs`
-- Selective bundling of dependencies to reduce cold start times
-- Development mode uses Vite middleware for HMR
+### Data Models (shared/schema.ts)
 
-### Data Storage Solutions
+- **Users**: Authentication and role management
+- **Patients**: Patient profile information
+- **ProgramConfigs**: Health program configuration
+- **Vitals**: Health metrics tracking
+- **Consultations**: Doctor appointments
+- **Habits**: Daily habit tracking
+- **DailyCheckIns**: Daily health check-ins
 
-**Database (Configured but not yet connected)**
-- PostgreSQL as the primary database
-- Neon Database serverless driver (`@neondatabase/serverless`)
-- Drizzle ORM for type-safe database queries
-- Schema defined in `shared/schema.ts`
-- Migrations stored in `./migrations` directory
-- Currently using in-memory storage for development
+### Mock Data Structure
 
-**Schema Design**
-- Shared type definitions between client and server
-- Zod schemas for runtime validation using `drizzle-zod`
-- User table with UUID primary keys
-- Schema designed to prevent duplication across client/server boundaries
+Located in `client/src/lib/mockData.ts`:
+- `mockPatient`: Patient profile data (Sarah Khan)
+- `mockProgramConfig`: PCOD program with 90-day duration
+- `mockVitals`: Weight, blood sugar, hormone level, energy, sleep
+- `mockConsultations`: Scheduled and completed consultations
+- `mockTodayHabits`: Daily habits (water, yoga, meals, meditation)
+- `mockWeightTrend`: 30-day weight history for charts
+- `mockTodayTasks`: Daily task checklist
 
-### Authentication and Authorization
+## Key Features
 
-**Planned Architecture** (not yet implemented)
-- JWT-based authentication (indicated by `jsonwebtoken` dependency)
-- Passport.js with local strategy for credential validation
-- Express sessions with connect-pg-simple for PostgreSQL session store
-- Role-based access control with Patient, Doctor, and Admin roles
-- Session persistence in PostgreSQL
+### Dashboard Home
+- Personalized greeting with time-of-day awareness
+- Circular progress ring showing program completion (45/90 days)
+- 4 stat cards: Days Completed, Progress %, Consultations, Current Streak
+- Today's Tasks checklist with interactive checkboxes
+- Quick action buttons: Check Vitals, Log Meal, Start Yoga
 
-### External Dependencies
+### Today's Check-in
+- Daily health metrics input (weight, energy, sleep, notes)
+- Energy level slider (1-10)
+- Habit tracking with checkboxes
+- Save functionality with toast notifications
 
-**UI Component Libraries**
-- Radix UI primitives for accessible, unstyled components
-- Embla Carousel for image/content carousels
-- React Hook Form with Zod resolvers for form validation
-- Class Variance Authority (CVA) for component variant management
-- CMDK for command palette functionality
+### Health Vitals
+- 5 vital cards with status badges (Normal/Good/Warning/Alert)
+- Weight trend line chart using Recharts
+- Update Vitals button for data entry
 
-**Utility Libraries**
-- date-fns for date manipulation and formatting
-- clsx and tailwind-merge for conditional class composition
-- nanoid for generating unique IDs
-- zod for schema validation
+### Consultations
+- Upcoming consultations with "Join Meeting" buttons
+- Past consultations in collapsible section
+- Consultation cards with doctor info, date/time, status
+- View Report functionality for completed consultations
 
-**Development Tools**
-- Replit-specific plugins for enhanced development experience
-  - Runtime error modal overlay
-  - Cartographer for code navigation
-  - Development banner
-- TypeScript with strict mode enabled
-- ESBuild and Vite for fast builds
+### Profile
+- Editable patient information (name, phone)
+- Read-only fields (email, date of birth)
+- Program configuration display
+- Enabled modules badges
+- Save Profile and Logout actions
 
-**Planned Integrations** (dependencies present)
-- Stripe for payment processing
-- Nodemailer for email notifications
-- OpenAI and Google Generative AI for potential AI features
-- WebSocket (ws) for real-time features
-- XLSX for spreadsheet export/import
-- Express Rate Limit for API protection
+## Development Notes
 
-**Third-Party Services**
-- Neon Database (serverless PostgreSQL)
-- Google Fonts (Inter, DM Sans, Fira Code, Geist Mono, Architects Daughter)
+### Mock Data Transition
+All mock data files include `// todo: remove mock functionality` comments for easy identification when switching to real API calls.
 
-### Key Architectural Decisions
+### Responsive Breakpoints
+- Mobile: < 768px (bottom tab nav, stacked layout)
+- Tablet: 768px - 1024px (2-column grids)
+- Desktop: > 1024px (sidebar nav, multi-column layout)
 
-**Mock Data Strategy**
-- All API calls are currently commented out or not implemented
-- Mock data structured in `lib/mockData.ts` to match expected API response format
-- Components designed to consume data from React Query hooks
-- Transition path: implement API endpoints, uncomment fetch calls, remove mock data layer
+### Theme Support
+- Light/dark mode toggle in header
+- Theme persisted in localStorage
+- CSS variables for consistent theming
+- Automatic system preference detection
 
-**Type Safety Approach**
-- Shared types between client and server in `shared/` directory
-- Drizzle Zod for automatic schema-to-type generation
-- TypeScript path aliases for clean imports (`@/`, `@shared/`, `@assets/`)
-- Strict TypeScript configuration to catch errors early
+## Next Steps (Future Development)
 
-**Responsive Design Pattern**
-- Mobile-first approach with progressive enhancement
-- Sidebar collapses to sheet/drawer on mobile using `use-mobile` hook
-- Grid layouts with responsive breakpoints (md, lg, xl)
-- Touch-friendly interactions for mobile devices
-
-**Theme System**
-- CSS custom properties for all theme colors
-- Class-based theme switching (`.light`, `.dark`)
-- localStorage persistence of user preference
-- System preference detection as fallback
-- Consistent elevation and shadow system across themes
-
-**Session Management Design**
-- Express session with PostgreSQL store for production
-- Memory store available for development
-- Connect-pg-simple for session persistence
-- Cookie-based session tracking
-
-**Error Handling**
-- Client: React Query error boundaries and toast notifications
-- Server: Centralized error logging with request context
-- Development: Replit runtime error overlay for immediate feedback
+**Step 2**: Add Nutrition, Fitness, Yoga, Habits, Meditation, Resources pages
+**Step 3**: Integrate API calls, add Admin Dashboard, Authentication flow
