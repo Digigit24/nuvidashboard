@@ -94,23 +94,33 @@ export default function HabitsPage() {
   const longestStreak = Math.max(...myHabits.map((h) => h.streak_days), 0);
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold">Habits</h1>
-        <p className="text-muted-foreground">
-          Build healthy habits for a better lifestyle
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <Target className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">Habits</h1>
+            <p className="text-white/90 text-lg mt-1">
+              Build healthy habits for a better lifestyle
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Weekly Summary */}
-      <Card className="border-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-blue-500" />
-              This Week's Overview
-            </span>
+      <Card className="border-2 hover:shadow-xl transition-all bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+              <Target className="h-6 w-6 text-blue-600" />
+            </div>
+            <span className="text-xl">This Week's Overview</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

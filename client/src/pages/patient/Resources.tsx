@@ -61,13 +61,23 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold">Resources</h1>
-        <p className="text-muted-foreground">
-          Learn more about health and wellness
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <BookOpen className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">Resources</h1>
+            <p className="text-white/90 text-lg mt-1">
+              Learn more about health and wellness
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Search and Filters */}

@@ -61,30 +61,47 @@ export default function MeditationPage() {
   const monthlyProgress = meditationLogs ? (meditationLogs.total_minutes / monthlyGoal) * 100 : 0;
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold">Meditation</h1>
-        <p className="text-muted-foreground">
-          Find peace and clarity through guided meditation
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-secondary to-secondary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <Brain className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">Meditation</h1>
+            <p className="text-white/90 text-lg mt-1">
+              Find peace and clarity through guided meditation
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Monthly Progress */}
-      <Card className="border-2 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Brain className="h-5 w-5 text-violet-500" />
-              This Month's Progress
+      <Card className="border-2 hover:shadow-xl transition-all bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <span className="flex items-center gap-3">
+              <div className="p-2 bg-violet-100 dark:bg-violet-900/20 rounded-lg">
+                <Brain className="h-6 w-6 text-violet-600" />
+              </div>
+              <span className="text-xl">This Month's Progress</span>
             </span>
-            <span className="text-2xl font-bold">
+            <span className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
               {meditationLogs?.total_minutes || 0} / {monthlyGoal} mins
             </span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Progress value={monthlyProgress} className="h-3" />
+          <div className="relative h-4 w-full overflow-hidden rounded-full bg-muted border-2">
+            <div
+              className="h-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-500"
+              style={{ width: `${Math.min(monthlyProgress, 100)}%` }}
+            />
+          </div>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold text-violet-600">
