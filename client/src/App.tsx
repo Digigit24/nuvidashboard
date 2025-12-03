@@ -8,6 +8,12 @@ import PatientHome from "@/pages/patient/Home";
 import PatientToday from "@/pages/patient/Today";
 import PatientVitals from "@/pages/patient/Vitals";
 import PatientConsultations from "@/pages/patient/Consultations";
+import PatientNutrition from "@/pages/patient/Nutrition";
+import PatientFitness from "@/pages/patient/Fitness";
+import PatientHabits from "@/pages/patient/Habits";
+import PatientMeditation from "@/pages/patient/Meditation";
+import PatientResources from "@/pages/patient/Resources";
+import PatientCommunity from "@/pages/patient/Community";
 import PatientProfile from "@/pages/patient/Profile";
 import NotFound from "@/pages/not-found";
 
@@ -21,6 +27,12 @@ function Router() {
       <Route path="/dashboard/today" component={PatientToday} />
       <Route path="/dashboard/vitals" component={PatientVitals} />
       <Route path="/dashboard/consultations" component={PatientConsultations} />
+      <Route path="/dashboard/nutrition" component={PatientNutrition} />
+      <Route path="/dashboard/fitness" component={PatientFitness} />
+      <Route path="/dashboard/habits" component={PatientHabits} />
+      <Route path="/dashboard/meditation" component={PatientMeditation} />
+      <Route path="/dashboard/resources" component={PatientResources} />
+      <Route path="/dashboard/community" component={PatientCommunity} />
       <Route path="/dashboard/profile" component={PatientProfile} />
       <Route component={NotFound} />
     </Switch>
