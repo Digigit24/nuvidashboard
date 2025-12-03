@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 import { ConsultationCard } from '@/components/patient/ConsultationCard';
-import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, Video, Clock } from 'lucide-react';
 import { mockConsultations } from '@/lib/mockData';
 
 export default function PatientConsultations() {
@@ -13,20 +14,53 @@ export default function PatientConsultations() {
   const pastConsultations = mockConsultations.filter(c => c.status === 'Completed');
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">
-          Consultations
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your upcoming and past appointments
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-secondary to-secondary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <Video className="h-8 w-8" />
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold" data-testid="text-page-title">
+                Consultations
+              </h1>
+              <p className="text-white/90 text-lg mt-1">
+                Manage your upcoming and past appointments
+              </p>
+            </div>
+          </div>
+
+          {upcomingConsultations.length > 0 && (
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/20">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  {upcomingConsultations.length} Upcoming
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  {pastConsultations.length} Completed
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Upcoming Consultations Section */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold">Upcoming Consultations</h2>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Clock className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-xl font-bold">Upcoming Consultations</h2>
         </div>
         
         {upcomingConsultations.length > 0 ? (
@@ -39,28 +73,37 @@ export default function PatientConsultations() {
             ))}
           </div>
         ) : (
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No upcoming consultations</p>
+          <Card className="border-2 border-dashed">
+            <CardContent className="p-12 text-center">
+              <div className="inline-flex p-4 rounded-full bg-muted/50 mb-4">
+                <Calendar className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-medium mb-1">No upcoming consultations</p>
+              <p className="text-sm text-muted-foreground">Schedule a consultation with your healthcare provider</p>
             </CardContent>
           </Card>
         )}
       </div>
 
+      {/* Past Consultations Section */}
       <Collapsible open={pastOpen} onOpenChange={setPastOpen}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 rounded-lg border bg-card hover-elevate" data-testid="trigger-past-consultations">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold">Past Consultations</h2>
-            <span className="text-sm text-muted-foreground">
-              ({pastConsultations.length})
-            </span>
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-5 rounded-xl border-2 bg-card hover:border-primary/30 hover:shadow-lg transition-all group" data-testid="trigger-past-consultations">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-muted rounded-lg group-hover:bg-primary/10 transition-colors">
+              <Calendar className="h-5 w-5 group-hover:text-primary transition-colors" />
+            </div>
+            <h2 className="text-xl font-bold">Past Consultations</h2>
+            <Badge variant="secondary" className="bg-muted text-muted-foreground border-0">
+              {pastConsultations.length}
+            </Badge>
           </div>
-          {pastOpen ? (
-            <ChevronUp className="h-5 w-5 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
-          )}
+          <div className="p-2 bg-muted rounded-lg group-hover:bg-primary/10 transition-colors">
+            {pastOpen ? (
+              <ChevronUp className="h-5 w-5 group-hover:text-primary transition-colors" />
+            ) : (
+              <ChevronDown className="h-5 w-5 group-hover:text-primary transition-colors" />
+            )}
+          </div>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
           {pastConsultations.length > 0 ? (
