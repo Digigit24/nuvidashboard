@@ -38,23 +38,34 @@ export default function PatientProfile() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-6 pb-24 md:pb-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">
-          Profile
-        </h1>
-        <p className="text-muted-foreground">
-          Manage your account settings
-        </p>
+    <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/80 p-6 md:p-8 text-white shadow-xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/20 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <User className="h-8 w-8" />
+          </div>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold" data-testid="text-page-title">
+              Profile
+            </h1>
+            <p className="text-white/90 text-lg mt-1">
+              Manage your account settings
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card data-testid="card-user-info">
-        <CardHeader>
+      <Card data-testid="card-user-info" className="border-2 hover:shadow-xl transition-all">
+        <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-6 w-6 text-primary" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10">
+              <User className="h-7 w-7 text-primary" />
             </div>
-            <CardTitle>User Information</CardTitle>
+            <CardTitle className="text-xl">User Information</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">

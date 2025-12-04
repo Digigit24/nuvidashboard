@@ -6,6 +6,12 @@ import {
   Calendar,
   User,
   LogOut,
+  Apple,
+  Dumbbell,
+  Target,
+  Brain,
+  BookOpen,
+  Users,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,11 +29,26 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { mockPatient } from '@/lib/mockData';
 
-const patientNavItems = [
+const mainNavItems = [
   { title: 'Dashboard Home', href: '/dashboard/home', icon: Home },
   { title: "Today's Check-in", href: '/dashboard/today', icon: CalendarCheck },
   { title: 'Health Vitals', href: '/dashboard/vitals', icon: Heart },
   { title: 'Consultations', href: '/dashboard/consultations', icon: Calendar },
+];
+
+const wellnessNavItems = [
+  { title: 'Nutrition', href: '/dashboard/nutrition', icon: Apple },
+  { title: 'Fitness', href: '/dashboard/fitness', icon: Dumbbell },
+  { title: 'Habits', href: '/dashboard/habits', icon: Target },
+  { title: 'Meditation', href: '/dashboard/meditation', icon: Brain },
+];
+
+const communityNavItems = [
+  { title: 'Resources', href: '/dashboard/resources', icon: BookOpen },
+  { title: 'Community', href: '/dashboard/community', icon: Users },
+];
+
+const profileNavItems = [
   { title: 'Profile', href: '/dashboard/profile', icon: User },
 ];
 
@@ -55,14 +76,82 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Patient Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {patientNavItems.map((item) => (
+              {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={location === item.href || (item.href === '/dashboard/home' && location === '/')}
+                  >
+                    <Link href={item.href} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Wellness</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {wellnessNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.href}
+                  >
+                    <Link href={item.href} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Community</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {communityNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.href}
+                  >
+                    <Link href={item.href} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {profileNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.href}
                   >
                     <Link href={item.href} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
                       <item.icon className="h-4 w-4" />
