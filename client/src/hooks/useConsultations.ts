@@ -27,11 +27,13 @@ export const useConsultations = () => {
 
     try {
       const data = await consultationAPI.getAll(token);
-      setConsultations(data);
+      // Ensure data is always an array
+      setConsultations(Array.isArray(data) ? data : []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch consultations';
       setError(errorMessage);
       console.error('Error fetching consultations:', err);
+      setConsultations([]); // Reset to empty array on error
     } finally {
       setIsLoading(false);
     }
