@@ -1,20 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { ConsultationCard } from '@/components/patient/ConsultationCard';
-import { Calendar, ChevronDown, ChevronUp, Video, Clock } from 'lucide-react';
-import { mockConsultations } from '@/lib/mockData';
+import { Calendar, ChevronDown, ChevronUp, Video, Clock, Loader2 } from 'lucide-react';
+import { useConsultations } from '@/hooks/useConsultations';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function PatientConsultations() {
   const [pastOpen, setPastOpen] = useState(false);
-  
-  // todo: remove mock functionality - replace with API call
-  const upcomingConsultations = mockConsultations.filter(c => c.status === 'Scheduled');
-  const pastConsultations = mockConsultations.filter(c => c.status === 'Completed');
+  const { consultations, isLoading, error, fetchConsultations } = useConsultations();
+
+  // Fetch consultations on component mount
+  useEffect(() => {
+    fetchConsultations();
+  }, [fetchConsultations]);
+
+  // Filter consultations by status
+  const upcomingConsultations = consultations.filter(
+    c => c.status === 'Pending' || c.status === 'Approved'
+  );
+  const pastConsultations = consultations.filter(
+    c => c.status === 'Completed' || c.status === 'Cancelled'
+  );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading consultations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pb-24 md:pb-8 animate-fade-in">
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary via-secondary to-secondary/80 p-6 md:p-8 text-white shadow-xl">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
