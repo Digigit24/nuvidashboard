@@ -24,13 +24,20 @@ export function Header() {
     setLocation('/login');
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | undefined | null) => {
+    if (!name) return 'U'; // Default to 'U' for User
     return name
       .split(' ')
       .map((n) => n[0])
       .join('')
       .toUpperCase()
       .substring(0, 2);
+  };
+
+  // Handle both camelCase and snake_case from backend
+  const getUserName = () => {
+    if (!user) return '';
+    return user.fullName || (user as any).full_name || 'User';
   };
 
   return (
@@ -54,7 +61,7 @@ export function Header() {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                   <AvatarFallback className="bg-blue-600 text-white">
-                    {getInitials(user.fullName)}
+                    {getInitials(getUserName())}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -62,7 +69,7 @@ export function Header() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.fullName}</p>
+                  <p className="text-sm font-medium leading-none">{getUserName()}</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user.email}
                   </p>
