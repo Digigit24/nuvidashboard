@@ -9,6 +9,12 @@ export const API_ENDPOINTS = {
     user: `${API_BASE_URL}/auth/me/`,
     userUpdate: `${API_BASE_URL}/auth/update/`,
   },
+  consultations: {
+    list: `${API_BASE_URL}/consultations/`,
+    create: `${API_BASE_URL}/consultations/create`,
+    detail: (id: number) => `${API_BASE_URL}/consultations/${id}`,
+    updateStatus: (id: number) => `${API_BASE_URL}/consultations/${id}/status`,
+  },
 };
 
 // Auth API Service
@@ -146,5 +152,115 @@ export const authAPI = {
       phone: userData.phone,
       role: userData.role,
     };
+  },
+};
+
+// ============================================================================
+// Consultation API Service
+// ============================================================================
+
+export interface Consultation {
+  id: number;
+  patient: number;
+  doctor: number | null;
+  patient_email?: string;
+  doctor_email?: string | null;
+  reason: string;
+  date: string; // ISO format datetime
+  status: 'Pending' | 'Approved' | 'Completed' | 'Cancelled';
+  notes?: string;
+}
+
+export interface CreateConsultationData {
+  patient: number;
+  doctor?: number | null;
+  reason: string;
+  date: string; // ISO format datetime
+  notes?: string;
+}
+
+export interface UpdateConsultationStatusData {
+  status: 'Pending' | 'Approved' | 'Completed' | 'Cancelled';
+}
+
+export const consultationAPI = {
+  /**
+   * Get all consultations
+   */
+  getAll: async (accessToken: string): Promise<Consultation[]> => {
+    const response = await fetch(API_ENDPOINTS.consultations.list, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch consultations');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get consultation by ID
+   */
+  getById: async (accessToken: string, id: number): Promise<Consultation> => {
+    const response = await fetch(API_ENDPOINTS.consultations.detail(id), {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch consultation');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Create new consultation
+   */
+  create: async (accessToken: string, data: CreateConsultationData): Promise<Consultation> => {
+    const response = await fetch(API_ENDPOINTS.consultations.create, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to create consultation' }));
+      throw new Error(error.message || error.detail || 'Failed to create consultation');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Update consultation status
+   */
+  updateStatus: async (
+    accessToken: string,
+    id: number,
+    data: UpdateConsultationStatusData
+  ): Promise<Consultation> => {
+    const response = await fetch(API_ENDPOINTS.consultations.updateStatus(id), {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to update status' }));
+      throw new Error(error.message || error.detail || 'Failed to update consultation status');
+    }
+
+    return response.json();
   },
 };
