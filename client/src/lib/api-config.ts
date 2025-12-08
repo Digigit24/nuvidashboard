@@ -29,6 +29,7 @@ interface UserData {
   id: string;
   email: string;
   full_name?: string;
+  fullName?: string; // camelCase version for frontend
   phone?: string;
   role: string;
 }
@@ -70,7 +71,17 @@ export const authAPI = {
 
     const data = await response.json();
     // Django backend may return user directly or nested
-    return data.user || data;
+    const userData = data.user || data;
+
+    // Transform snake_case to camelCase for consistency
+    return {
+      id: userData.id,
+      email: userData.email,
+      full_name: userData.full_name,
+      fullName: userData.full_name, // Add camelCase version
+      phone: userData.phone,
+      role: userData.role,
+    };
   },
 
   /**
@@ -124,6 +135,16 @@ export const authAPI = {
     }
 
     const responseData = await response.json();
-    return responseData.user || responseData;
+    const userData = responseData.user || responseData;
+
+    // Transform snake_case to camelCase for consistency
+    return {
+      id: userData.id,
+      email: userData.email,
+      full_name: userData.full_name,
+      fullName: userData.full_name, // Add camelCase version
+      phone: userData.phone,
+      role: userData.role,
+    };
   },
 };
