@@ -17,12 +17,12 @@ export default function PatientConsultations() {
   }, [fetchConsultations]);
 
   // Filter consultations by status
-  const upcomingConsultations = consultations.filter(
-    c => c.status === 'Pending' || c.status === 'Approved'
-  );
-  const pastConsultations = consultations.filter(
-    c => c.status === 'Completed' || c.status === 'Cancelled'
-  );
+  const upcomingConsultations = Array.isArray(consultations)
+    ? consultations.filter(c => c.status === 'Pending' || c.status === 'Approved')
+    : [];
+  const pastConsultations = Array.isArray(consultations)
+    ? consultations.filter(c => c.status === 'Completed' || c.status === 'Cancelled')
+    : [];
 
   // Show loading state
   if (isLoading) {
