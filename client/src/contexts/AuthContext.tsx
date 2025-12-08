@@ -101,10 +101,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await response.json();
       console.log('Login successful, received data:', data);
 
-      // Django backend returns user and token
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('authToken', data.token);
+      // Django JWT backend returns access and refresh tokens
+      const accessToken = data.access;
+      const refreshToken = data.refresh;
+
+      if (!accessToken) {
+        throw new Error('No access token received from server');
+      }
+
+      // Store tokens
+      setToken(accessToken);
+      localStorage.setItem('authToken', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+
+      // Fetch user data using the access token
+      await fetchUser(accessToken);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
