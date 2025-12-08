@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { User } from '@shared/schema';
+import { API_ENDPOINTS } from '@/lib/api-config';
 
 interface AuthContextType {
   user: Omit<User, 'password'> | null;
@@ -16,6 +17,7 @@ interface RegisterData {
   email: string;
   password: string;
   fullName: string;
+  full_name?: string; // Django backend uses snake_case
   phone?: string;
   role: 'Patient' | 'Doctor' | 'Admin';
 }
@@ -53,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const response = await fetch('/api/auth/user', {
+      const response = await fetch(API_ENDPOINTS.auth.user, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -61,7 +63,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
+        // Django backend returns user directly, not nested
+        setUser(data.user || data);
       } else {
         // Token is invalid, clear it
         localStorage.removeItem('authToken');
@@ -78,7 +81,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      console.log('Attempting login to:', API_ENDPOINTS.auth.login);
+      const response = await fetch(API_ENDPOINTS.auth.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,12 +90,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login response status:', response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+        const error = await response.json().catch(() => ({ message: 'Login failed' }));
+        console.error('Login error response:', error);
+        throw new Error(error.message || error.detail || 'Login failed');
       }
 
       const data = await response.json();
+      console.log('Login successful, received data:', data);
+
+      // Django backend returns user and token
       setUser(data.user);
       setToken(data.token);
       localStorage.setItem('authToken', data.token);
@@ -103,20 +113,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (registerData: RegisterData) => {
     try {
-      const response = await fetch('/api/auth/register', {
+      // Convert camelCase to snake_case for Django backend
+      const payload = {
+        email: registerData.email,
+        password: registerData.password,
+        full_name: registerData.fullName,
+        phone: registerData.phone || '',
+        role: registerData.role,
+      };
+
+      console.log('Attempting registration to:', API_ENDPOINTS.auth.register);
+      const response = await fetch(API_ENDPOINTS.auth.register, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registerData),
+        body: JSON.stringify(payload),
       });
 
+      console.log('Registration response status:', response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
+        const error = await response.json().catch(() => ({ message: 'Registration failed' }));
+        console.error('Registration error response:', error);
+        throw new Error(error.message || error.detail || 'Registration failed');
       }
 
       const data = await response.json();
+      console.log('Registration successful, received data:', data);
+
       setUser(data.user);
       setToken(data.token);
       localStorage.setItem('authToken', data.token);
@@ -127,16 +152,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    const currentToken = token;
+
     setUser(null);
     setToken(null);
     localStorage.removeItem('authToken');
 
-    // Optionally call the backend logout endpoint
-    if (token) {
-      fetch('/api/auth/logout', {
+    // Call the backend logout endpoint
+    if (currentToken) {
+      fetch(API_ENDPOINTS.auth.logout, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${currentToken}`,
         },
       }).catch(console.error);
     }

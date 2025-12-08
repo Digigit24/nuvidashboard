@@ -82,14 +82,24 @@ export default function Login() {
               {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            Don't have an account?{' '}
-            <a
-              href="/register"
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Register here
-            </a>
+          <div className="mt-4 text-center text-sm space-y-2">
+            <div>
+              Don't have an account?{' '}
+              <a
+                href="/register"
+                className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Register here
+              </a>
+            </div>
+            <div>
+              <a
+                href="/test-connection"
+                className="text-gray-600 hover:text-gray-800 font-medium text-xs"
+              >
+                Test API Connection
+              </a>
+            </div>
           </div>
         </CardContent>
       </Card>

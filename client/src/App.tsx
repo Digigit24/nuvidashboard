@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
+import TestConnection from "@/pages/auth/TestConnection";
 import PatientHome from "@/pages/patient/Home";
 import PatientToday from "@/pages/patient/Today";
 import PatientVitals from "@/pages/patient/Vitals";
@@ -33,6 +34,7 @@ function AuthenticatedRouter() {
       <Route path="/register">
         {isAuthenticated ? <Redirect to="/dashboard/home" /> : <Register />}
       </Route>
+      <Route path="/test-connection" component={TestConnection} />
 
       {/* Protected routes - require authentication */}
       <Route path="/">
