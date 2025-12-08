@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { User } from '@shared/schema';
-import { API_ENDPOINTS } from '@/lib/api-config';
+import { authAPI } from '@/lib/api-config';
 
 interface AuthContextType {
   user: Omit<User, 'password'> | null;
@@ -55,24 +55,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const response = await fetch(API_ENDPOINTS.auth.user, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Django backend returns user directly, not nested
-        setUser(data.user || data);
-      } else {
-        // Token is invalid, clear it
-        localStorage.removeItem('authToken');
-        setToken(null);
-      }
+      const userData = await authAPI.getUser(authToken);
+      setUser(userData as Omit<User, 'password'>);
     } catch (error) {
       console.error('Failed to fetch user:', error);
+      // Token is invalid, clear it
       localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
       setToken(null);
     } finally {
       setIsLoading(false);
@@ -81,43 +70,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('Attempting login to:', API_ENDPOINTS.auth.login);
-      const response = await fetch(API_ENDPOINTS.auth.login, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      console.log('Attempting login...');
 
-      console.log('Login response status:', response.status);
+      // Call login API and get JWT tokens
+      const { access, refresh } = await authAPI.login(email, password);
+      console.log('Login successful, received tokens');
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Login failed' }));
-        console.error('Login error response:', error);
-        throw new Error(error.message || error.detail || 'Login failed');
-      }
-
-      const data = await response.json();
-      console.log('Login successful, received data:', data);
-
-      // Django JWT backend returns access and refresh tokens
-      const accessToken = data.access;
-      const refreshToken = data.refresh;
-
-      if (!accessToken) {
+      if (!access) {
         throw new Error('No access token received from server');
       }
 
       // Store tokens
-      setToken(accessToken);
-      localStorage.setItem('authToken', accessToken);
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
+      setToken(access);
+      localStorage.setItem('authToken', access);
+      if (refresh) {
+        localStorage.setItem('refreshToken', refresh);
       }
 
       // Fetch user data using the access token
-      await fetchUser(accessToken);
+      await fetchUser(access);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -126,6 +97,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (registerData: RegisterData) => {
     try {
+      console.log('Attempting registration...');
+
       // Convert camelCase to snake_case for Django backend
       const payload = {
         email: registerData.email,
@@ -135,29 +108,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         role: registerData.role,
       };
 
-      console.log('Attempting registration to:', API_ENDPOINTS.auth.register);
-      const response = await fetch(API_ENDPOINTS.auth.register, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      // Call register API and get JWT tokens
+      const { access, refresh } = await authAPI.register(payload);
+      console.log('Registration successful, received tokens');
 
-      console.log('Registration response status:', response.status);
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'Registration failed' }));
-        console.error('Registration error response:', error);
-        throw new Error(error.message || error.detail || 'Registration failed');
+      if (!access) {
+        throw new Error('No access token received from server');
       }
 
-      const data = await response.json();
-      console.log('Registration successful, received data:', data);
+      // Store tokens
+      setToken(access);
+      localStorage.setItem('authToken', access);
+      if (refresh) {
+        localStorage.setItem('refreshToken', refresh);
+      }
 
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('authToken', data.token);
+      // Fetch user data using the access token
+      await fetchUser(access);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -170,15 +137,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
 
     // Call the backend logout endpoint
     if (currentToken) {
-      fetch(API_ENDPOINTS.auth.logout, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${currentToken}`,
-        },
-      }).catch(console.error);
+      authAPI.logout(currentToken);
     }
   };
 
