@@ -403,6 +403,45 @@ export interface Template {
 }
 
 // =============================================================================
+// NEW PATIENT CONFIG, VITALS & TEMPLATES TYPES
+// =============================================================================
+
+export interface PatientConfig {
+  id?: number;
+  user?: number;
+  height?: number | null;
+  weight?: number | null;
+  age?: number | null;
+  target_calories?: number | null;
+}
+
+export interface HealthTemplate {
+  id: number;
+  title: string;
+  description: string;
+}
+
+export interface VitalRecord {
+  id: number;
+  user: number;
+  vital_type: string;
+  value: string;
+  timestamp: string;
+}
+
+export interface CreateVitalRecordData {
+  vital_type: string;
+  value: string;
+}
+
+export interface UpdatePatientConfigData {
+  height?: number | null;
+  weight?: number | null;
+  age?: number | null;
+  target_calories?: number | null;
+}
+
+// =============================================================================
 // PAGINATION
 // =============================================================================
 

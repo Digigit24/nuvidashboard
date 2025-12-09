@@ -20,6 +20,7 @@ import PatientMeditation from "@/pages/patient/Meditation";
 import PatientResources from "@/pages/patient/Resources";
 import PatientCommunity from "@/pages/patient/Community";
 import PatientProfile from "@/pages/patient/Profile";
+import PatientConfig from "@/pages/patient/PatientConfig";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedRouter() {
@@ -94,6 +95,11 @@ function AuthenticatedRouter() {
       <Route path="/dashboard/profile">
         <ProtectedRoute>
           <PatientProfile />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/patient-config">
+        <ProtectedRoute>
+          <PatientConfig />
         </ProtectedRoute>
       </Route>
 

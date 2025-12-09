@@ -15,6 +15,12 @@ export const API_ENDPOINTS = {
     detail: (id: number) => `${API_BASE_URL}/consultations/${id}`,
     updateStatus: (id: number) => `${API_BASE_URL}/consultations/${id}/status`,
   },
+  patients: {
+    me: `${API_BASE_URL}/patients/me`,
+    config: `${API_BASE_URL}/patients/me/config`,
+    vitals: `${API_BASE_URL}/patients/me/vitals`,
+    templates: `${API_BASE_URL}/patients/templates`,
+  },
 };
 
 // Auth API Service
@@ -259,6 +265,136 @@ export const consultationAPI = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Failed to update status' }));
       throw new Error(error.message || error.detail || 'Failed to update consultation status');
+    }
+
+    return response.json();
+  },
+};
+
+// ============================================================================
+// Patient API Service
+// ============================================================================
+
+import type {
+  PatientConfig,
+  UpdatePatientConfigData,
+  VitalRecord,
+  CreateVitalRecordData,
+  HealthTemplate,
+} from '../types';
+
+export const patientAPI = {
+  /**
+   * Get current patient data
+   */
+  getMe: async (accessToken: string): Promise<any> => {
+    const response = await fetch(API_ENDPOINTS.patients.me, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch patient data');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get patient config
+   */
+  getConfig: async (accessToken: string): Promise<PatientConfig> => {
+    const response = await fetch(API_ENDPOINTS.patients.config, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch patient config');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Update patient config
+   */
+  updateConfig: async (
+    accessToken: string,
+    data: UpdatePatientConfigData
+  ): Promise<PatientConfig> => {
+    const response = await fetch(API_ENDPOINTS.patients.config, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to update config' }));
+      throw new Error(error.message || error.detail || 'Failed to update patient config');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get patient vitals
+   */
+  getVitals: async (accessToken: string): Promise<VitalRecord[]> => {
+    const response = await fetch(API_ENDPOINTS.patients.vitals, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch vitals');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Create vital record
+   */
+  createVital: async (
+    accessToken: string,
+    data: CreateVitalRecordData
+  ): Promise<VitalRecord> => {
+    const response = await fetch(API_ENDPOINTS.patients.vitals, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Failed to create vital' }));
+      throw new Error(error.message || error.detail || 'Failed to create vital record');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get health templates
+   */
+  getTemplates: async (accessToken: string): Promise<HealthTemplate[]> => {
+    const response = await fetch(API_ENDPOINTS.patients.templates, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch health templates');
     }
 
     return response.json();

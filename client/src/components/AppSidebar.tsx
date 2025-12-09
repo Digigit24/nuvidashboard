@@ -12,6 +12,7 @@ import {
   Brain,
   BookOpen,
   Users,
+  Settings,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -50,6 +51,7 @@ const communityNavItems = [
 
 const profileNavItems = [
   { title: 'Profile', href: '/dashboard/profile', icon: User },
+  { title: 'Patient Config', href: '/dashboard/patient-config', icon: Settings },
 ];
 
 export function AppSidebar() {
