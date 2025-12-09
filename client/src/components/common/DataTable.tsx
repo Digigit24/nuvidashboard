@@ -1,12 +1,8 @@
-import { ReactNode } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+// src/components/DataTable.tsx
+
+import { useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,148 +12,473 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { MoreHorizontal, Eye, Edit, Trash2, Stethoscope, DollarSign } from 'lucide-react';
+
+// --------------------------------------
+// Types
+// --------------------------------------
 
 export interface DataTableColumn<T> {
+  /** column label in <th> */
+  header: string;
+  /** unique key for this column */
   key: string;
-  label: string;
-  render?: (item: T) => ReactNode;
-  width?: string;
+  /** render cell content for desktop table */
+  cell: (row: T) => React.ReactNode;
+  /** optional className for <TableHead> & <TableCell> */
+  className?: string;
 }
 
-export interface DataTableAction<T> {
-  label: string;
-  icon?: ReactNode;
-  onClick: (item: T) => void;
-  variant?: 'default' | 'destructive';
-}
-
-interface DataTableProps<T> {
+export interface DataTableProps<T> {
+  /** array of row objects (patients, notes, etc.) */
+  rows: T[];
+  /** is API loading? */
+  isLoading: boolean;
+  /** columns configuration for desktop table */
   columns: DataTableColumn<T>[];
-  data: T[];
-  actions?: DataTableAction<T>[];
-  onRowClick?: (item: T) => void;
-  emptyMessage?: string;
-  loading?: boolean;
+  /** render function for mobile card layout (1 row -> card) */
+  renderMobileCard: (row: T, actions: RowActions<T>) => React.ReactNode;
+
+  /** unique id accessor for keys / deletes */
+  getRowId: (row: T) => string | number;
+  /** label to show in delete dialog, ex. row.full_name */
+  getRowLabel: (row: T) => string;
+
+  /** row click action (separate from view details) - called when clicking the row */
+  onRowClick?: (row: T) => void;
+  /** selected row ID for highlighting */
+  selectedRowId?: string | number | null;
+  /** view action - only called from Actions menu */
+  onView?: (row: T) => void;
+  /** edit action */
+  onEdit?: (row: T) => void;
+  /** delete action (async allowed). if not provided, Delete is hidden */
+  onDelete?: (row: T) => Promise<void> | void;
+
+  /** consultation action - shown as button */
+  onConsultation?: (row: T) => void;
+  /** billing action - shown as button */
+  onBilling?: (row: T) => void;
+
+  /** optional: extra action items you want in dropdown */
+  extraActions?: (row: T) => React.ReactNode;
+
+  /** empty state text */
+  emptyTitle?: string;
+  emptySubtitle?: string;
 }
 
-export function DataTable<T extends { id: number | string }>({
-  columns,
-  data,
-  actions,
-  onRowClick,
-  emptyMessage = 'No data available',
-  loading = false,
-}: DataTableProps<T>) {
-  const defaultActions: DataTableAction<T>[] = actions || [
-    {
-      label: 'View',
-      icon: <Eye className="mr-2 h-4 w-4" />,
-      onClick: (item) => console.log('View', item),
-    },
-    {
-      label: 'Edit',
-      icon: <Edit className="mr-2 h-4 w-4" />,
-      onClick: (item) => console.log('Edit', item),
-    },
-    {
-      label: 'Delete',
-      icon: <Trash2 className="mr-2 h-4 w-4" />,
-      onClick: (item) => console.log('Delete', item),
-      variant: 'destructive',
-    },
-  ];
+// This is just to pass bound handlers down to mobile card
+export interface RowActions<T> {
+  view?: () => void;
+  edit?: () => void;
+  askDelete?: () => void;
+  consultation?: () => void;
+  billing?: () => void;
+  dropdown?: React.ReactNode;
+}
 
-  if (loading) {
+// --------------------------------------
+// Component
+// --------------------------------------
+
+export function DataTable<T>({
+  rows,
+  isLoading,
+  columns,
+  renderMobileCard,
+  getRowId,
+  getRowLabel,
+  onRowClick,
+  selectedRowId,
+  onView,
+  onEdit,
+  onDelete,
+  onConsultation,
+  onBilling,
+  extraActions,
+  emptyTitle = 'No records found',
+  emptySubtitle = 'Try adjusting your filters or search criteria',
+}: DataTableProps<T>) {
+  const isMobile = useIsMobile();
+
+  // delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<T | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleAskDelete = (row: T) => {
+    if (!onDelete) return; // if no delete handler, no dialog
+    setRowToDelete(row);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!rowToDelete || !onDelete) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(rowToDelete);
+      setDeleteDialogOpen(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // ---------------------------
+  // LOADING STATE
+  // ---------------------------
+  if (isLoading && rows.length === 0) {
     return (
-      <Card>
-        <div className="p-8 text-center">
-          <div className="animate-pulse space-y-3">
-            <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
-            <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
-            <div className="h-4 bg-muted rounded w-2/3 mx-auto"></div>
+      <div className="flex items-center justify-center h-full p-12 w-full">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 mb-4">
+            <svg
+              className="animate-spin h-8 w-8 text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          </div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------------------------
+  // EMPTY STATE (no rows, not loading)
+  // ---------------------------
+  if (!isLoading && rows.length === 0) {
+    return (
+      <>
+        <div className="flex items-center justify-center h-full p-8 w-full">
+          <div className="text-center max-w-xs">
+            <div className="mx-auto h-12 w-12 text-muted-foreground mb-4">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="w-full h-full"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-sm font-medium text-foreground mb-1">
+              {emptyTitle}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {emptySubtitle}
+            </p>
           </div>
         </div>
-      </Card>
+
+        {/* delete dialog still mounted so you can delete last row and see dialog etc */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete{' '}
+                {rowToDelete ? getRowLabel(rowToDelete) : ''}? This action
+                cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
-  if (data.length === 0) {
+  // ---------------------------
+  // MOBILE CARD LIST
+  // ---------------------------
+  if (isMobile) {
     return (
-      <Card>
-        <div className="p-12 text-center">
-          <p className="text-muted-foreground">{emptyMessage}</p>
+      <>
+        <div className="p-4 space-y-3">
+          {rows.map((row) => {
+            const rowActions: RowActions<T> = {
+              view: onView ? () => onView(row) : undefined,
+              edit: onEdit ? () => onEdit(row) : undefined,
+              askDelete: onDelete ? () => handleAskDelete(row) : undefined,
+              consultation: onConsultation ? () => onConsultation(row) : undefined,
+              billing: onBilling ? () => onBilling(row) : undefined,
+            };
+
+            return (
+              <div key={getRowId(row)} className="bg-card border rounded-lg p-4 space-y-3 hover:shadow-md transition-shadow">
+                {renderMobileCard(row, rowActions)}
+              </div>
+            );
+          })}
         </div>
-      </Card>
+
+        {/* Delete dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete{' '}
+                {rowToDelete ? getRowLabel(rowToDelete) : ''}? This action
+                cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
+
+  // ---------------------------
+  // DESKTOP TABLE
+  // ---------------------------
 
   return (
-    <Card>
-      <div className="rounded-md border">
+    <>
+      <div className="w-full">
         <Table>
-          <TableHeader>
-            <TableRow>
-              {columns.map((column) => (
-                <TableHead key={column.key} style={{ width: column.width }}>
-                  {column.label}
+          <TableHeader className="sticky top-0 bg-background z-10">
+            <TableRow className="hover:bg-transparent border-b">
+              {columns.map((col) => (
+                <TableHead
+                  key={col.key}
+                  className={`font-medium ${col.className || ''}`}
+                >
+                  {col.header}
                 </TableHead>
               ))}
-              {actions && actions.length > 0 && (
-                <TableHead className="w-[70px]">Actions</TableHead>
+
+              {/* Actions header */}
+              {(onView || onEdit || onDelete || onConsultation || onBilling || extraActions) && (
+                <TableHead className="font-medium text-right">
+                  Actions
+                </TableHead>
               )}
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            {data.map((item) => (
-              <TableRow
-                key={item.id}
-                className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
-                onClick={() => onRowClick?.(item)}
-              >
-                {columns.map((column) => (
-                  <TableCell key={column.key}>
-                    {column.render
-                      ? column.render(item)
-                      : String((item as any)[column.key] ?? '-')}
-                  </TableCell>
-                ))}
-                {actions && actions.length > 0 && (
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {actions.map((action, index) => (
-                          <DropdownMenuItem
-                            key={index}
-                            onClick={() => action.onClick(item)}
-                            className={
-                              action.variant === 'destructive'
-                                ? 'text-destructive focus:text-destructive'
-                                : ''
-                            }
+            {rows.map((row) => {
+              const id = getRowId(row);
+
+              // table row click triggers onRowClick if provided, otherwise onView (for backward compatibility)
+              const handleRowClick = () => {
+                if (onRowClick) {
+                  onRowClick(row);
+                } else if (onView) {
+                  onView(row);
+                }
+              };
+
+              const rowActions: RowActions<T> = {
+                view: onView ? () => onView(row) : undefined,
+                edit: onEdit ? () => onEdit(row) : undefined,
+                askDelete: onDelete ? () => handleAskDelete(row) : undefined,
+                consultation: onConsultation ? () => onConsultation(row) : undefined,
+                billing: onBilling ? () => onBilling(row) : undefined,
+              };
+
+              // Only make row clickable if onRowClick or onView is provided
+              const isRowClickable = !!(onRowClick || onView);
+              const isSelected = selectedRowId !== undefined && selectedRowId !== null && id === selectedRowId;
+
+              return (
+                <TableRow
+                  key={id}
+                  className={`group hover:bg-muted/50 transition-colors align-top ${isRowClickable ? 'cursor-pointer' : ''} ${isSelected ? 'bg-muted/70 border-l-4 border-l-primary' : ''}`}
+                  onClick={isRowClickable ? handleRowClick : undefined}
+                >
+                  {columns.map((col) => (
+                    <TableCell key={col.key} className={col.className}>
+                      {col.cell(row)}
+                    </TableCell>
+                  ))}
+
+                  {(onView || onEdit || onDelete || onConsultation || onBilling || extraActions) && (
+                    <TableCell
+                      className="text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-end gap-2">
+                        {/* Consultation Button */}
+                        {onConsultation && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onConsultation(row)}
                           >
-                            {action.icon}
-                            {action.label}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))}
+                            <Stethoscope className="h-4 w-4 mr-1" />
+                            Consult
+                          </Button>
+                        )}
+
+                        {/* Billing Button */}
+                        {onBilling && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onBilling(row)}
+                          >
+                            <DollarSign className="h-4 w-4 mr-1" />
+                            Billing
+                          </Button>
+                        )}
+
+                        {/* Dropdown Menu */}
+                        <RowDropdown
+                          row={row}
+                          rowActions={rowActions}
+                          extraActions={extraActions}
+                        />
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
-    </Card>
+
+      {/* Delete dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{' '}
+              {rowToDelete ? getRowLabel(rowToDelete) : ''}? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+// --------------------------------------
+// Row dropdown (3 dots menu)
+// --------------------------------------
+
+function RowDropdown<T>({
+  row,
+  rowActions,
+  extraActions,
+}: {
+  row: T;
+  rowActions: RowActions<T>;
+  extraActions?: (row: T) => React.ReactNode;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        {rowActions.view && (
+          <DropdownMenuItem onClick={rowActions.view}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </DropdownMenuItem>
+        )}
+
+        {rowActions.edit && (
+          <DropdownMenuItem onClick={rowActions.edit}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+        )}
+
+        {extraActions && (
+          <>
+            <DropdownMenuSeparator />
+            {extraActions(row)}
+          </>
+        )}
+
+        {rowActions.askDelete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={rowActions.askDelete}
+              className="text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

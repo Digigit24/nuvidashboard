@@ -20,6 +20,8 @@ export const API_ENDPOINTS = {
     config: `${API_BASE_URL}/patients/me/config`,
     vitals: `${API_BASE_URL}/patients/me/vitals`,
     templates: `${API_BASE_URL}/patients/templates`,
+    list: `${API_BASE_URL}/patients/`,
+    detail: (id: number) => `${API_BASE_URL}/patients/${id}`,
   },
 };
 
@@ -281,6 +283,7 @@ import type {
   VitalRecord,
   CreateVitalRecordData,
   HealthTemplate,
+  PatientUser,
 } from '../types';
 
 export const patientAPI = {
@@ -395,6 +398,40 @@ export const patientAPI = {
 
     if (!response.ok) {
       throw new Error('Failed to fetch health templates');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get all patients (admin only)
+   */
+  getAll: async (accessToken: string): Promise<PatientUser[]> => {
+    const response = await fetch(API_ENDPOINTS.patients.list, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch patients');
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get patient by ID (admin only)
+   */
+  getById: async (accessToken: string, id: number): Promise<PatientUser> => {
+    const response = await fetch(API_ENDPOINTS.patients.detail(id), {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch patient');
     }
 
     return response.json();

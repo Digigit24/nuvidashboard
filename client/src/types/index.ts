@@ -406,6 +406,15 @@ export interface Template {
 // NEW PATIENT CONFIG, VITALS & TEMPLATES TYPES
 // =============================================================================
 
+export interface PatientUser {
+  id: number;
+  email: string;
+  full_name: string;
+  phone?: string;
+  role: string;
+  date_joined?: string;
+}
+
 export interface PatientConfig {
   id?: number;
   user?: number;

@@ -49,6 +49,10 @@ const communityNavItems = [
   { title: 'Community', href: '/dashboard/community', icon: Users },
 ];
 
+const adminNavItems = [
+  { title: 'All Patients', href: '/admin/patients', icon: Users },
+];
+
 const profileNavItems = [
   { title: 'Profile', href: '/dashboard/profile', icon: User },
   { title: 'Patient Config', href: '/dashboard/patient-config', icon: Settings },
@@ -128,6 +132,29 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {communityNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === item.href}
+                  >
+                    <Link href={item.href} data-testid={`link-nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Admin</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
