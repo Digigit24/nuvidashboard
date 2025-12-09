@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Loader2, Plus } from 'lucide-react';
+import { Calendar, Clock, Loader2, Plus, User } from 'lucide-react';
 import { useConsultations } from '@/hooks/useConsultations';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { DataTable, DataTableColumn, DataTableAction } from '@/components/common/DataTable';
+import { DataTable, DataTableColumn } from '@/components/common/DataTable';
 import { ConsultationDrawer } from '@/components/consultations/ConsultationDrawer';
 import { Consultation, CreateConsultationData } from '@/lib/api-config';
 import { useToast } from '@/hooks/use-toast';
@@ -81,28 +81,37 @@ export default function PatientConsultations() {
     }
   };
 
-  // Define table columns
+  // Define table columns for new DataTable API
   const columns: DataTableColumn<Consultation>[] = [
     {
       key: 'date',
-      label: 'Date & Time',
-      render: (item) => new Date(item.date).toLocaleString(),
-      width: '200px',
+      header: 'Date & Time',
+      cell: (item) => (
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm">{new Date(item.date).toLocaleString()}</span>
+        </div>
+      ),
     },
     {
       key: 'reason',
-      label: 'Reason',
-      width: '300px',
+      header: 'Reason',
+      cell: (item) => <span className="font-medium">{item.reason}</span>,
     },
     {
       key: 'doctor_email',
-      label: 'Doctor',
-      render: (item) => item.doctor_email || 'Not assigned',
+      header: 'Doctor',
+      cell: (item) => (
+        <div className="flex items-center gap-2">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm">{item.doctor_email || 'Not assigned'}</span>
+        </div>
+      ),
     },
     {
       key: 'status',
-      label: 'Status',
-      render: (item) => (
+      header: 'Status',
+      cell: (item) => (
         <Badge
           variant={
             item.status === 'Approved' ? 'default' :
@@ -114,21 +123,51 @@ export default function PatientConsultations() {
           {item.status}
         </Badge>
       ),
-      width: '120px',
     },
   ];
 
-  // Define table actions
-  const actions: DataTableAction<Consultation>[] = [
-    {
-      label: 'View Details',
-      onClick: handleViewClick,
-    },
-    {
-      label: 'Edit',
-      onClick: handleEditClick,
-    },
-  ];
+  // Mobile card renderer
+  const renderMobileCard = (item: Consultation, actions: any) => (
+    <>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="font-semibold text-foreground">{item.reason}</h3>
+          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {new Date(item.date).toLocaleString()}
+          </p>
+          {item.doctor_email && (
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+              <User className="h-3 w-3" />
+              {item.doctor_email}
+            </p>
+          )}
+        </div>
+        <Badge
+          variant={
+            item.status === 'Approved' ? 'default' :
+            item.status === 'Pending' ? 'secondary' :
+            item.status === 'Completed' ? 'outline' :
+            'destructive'
+          }
+        >
+          {item.status}
+        </Badge>
+      </div>
+      <div className="flex gap-2 pt-2">
+        {actions.view && (
+          <Button onClick={actions.view} variant="outline" size="sm" className="flex-1">
+            View
+          </Button>
+        )}
+        {actions.edit && (
+          <Button onClick={actions.edit} variant="outline" size="sm" className="flex-1">
+            Edit
+          </Button>
+        )}
+      </div>
+    </>
+  );
 
   // Show loading state
   if (isLoading) {
@@ -210,11 +249,17 @@ export default function PatientConsultations() {
           </div>
         </div>
 
-        <DataTable
+        <DataTable<Consultation>
+          rows={upcomingConsultations}
+          isLoading={false}
           columns={columns}
-          data={upcomingConsultations}
-          actions={actions}
-          emptyMessage="No upcoming consultations. Click 'New Consultation' to schedule one."
+          renderMobileCard={renderMobileCard}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.reason}
+          onView={handleViewClick}
+          onEdit={handleEditClick}
+          emptyTitle="No upcoming consultations"
+          emptySubtitle="Click 'New Consultation' to schedule one."
         />
       </div>
 
@@ -230,11 +275,17 @@ export default function PatientConsultations() {
           </div>
         </div>
 
-        <DataTable
+        <DataTable<Consultation>
+          rows={pastConsultations}
+          isLoading={false}
           columns={columns}
-          data={pastConsultations}
-          actions={actions}
-          emptyMessage="No past consultations"
+          renderMobileCard={renderMobileCard}
+          getRowId={(row) => row.id}
+          getRowLabel={(row) => row.reason}
+          onView={handleViewClick}
+          onEdit={handleEditClick}
+          emptyTitle="No past consultations"
+          emptySubtitle="No completed or cancelled consultations yet"
         />
       </div>
 
